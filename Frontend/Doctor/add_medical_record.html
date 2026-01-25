@@ -9,7 +9,7 @@
         const token = localStorage.getItem("doctorToken");
         if (!token) window.location.replace("login.html");
 
-        fetch("http://127.0.0.1:5000/check/token", {
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
             headers: { "Authorization": "Bearer " + token }
         }).then(res => {
             if (!res.ok) logout();
@@ -271,9 +271,7 @@
         }
     }
 
-    console.log("================================");
-
-    fetch("http://127.0.0.1:5000/doctor/add/patient/diagnosis/prescription/medical_notes", {
+    fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes", {
         method: "POST",
         headers: { "Authorization": "Bearer " + token },
         body: formData

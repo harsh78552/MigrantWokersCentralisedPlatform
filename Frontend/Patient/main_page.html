@@ -12,7 +12,7 @@
         if (!token) {
             window.location.replace("login.html");
         } else {
-            fetch("http://127.0.0.1:5000/check/token", {
+            fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
                 method: "GET",
                 headers: {
                     "Authorization": "Bearer " + token
@@ -156,7 +156,7 @@
     }
 
     function openHealthCard() {
-        fetch("http://127.0.0.1:5000/patient/health-card", {
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/health-card", {
             headers: {
                 "Authorization": "Bearer " + token
             }
@@ -176,7 +176,7 @@
     }
 
     function openProfile() {
-        fetch("http://127.0.0.1:5000/patient/profile", {
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/profile", {
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("patientToken")
             }

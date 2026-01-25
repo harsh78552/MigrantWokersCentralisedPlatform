@@ -193,7 +193,7 @@
 
     /* ================= PRESCRIPTIONS ================= */
     function loadPrescriptions() {
-        fetch("http://127.0.0.1:5000/patient/prescriptions", { headers })
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/prescriptions", { headers })
         .then(res => res.json())
         .then(data => {
             const container = document.getElementById("prescriptions");

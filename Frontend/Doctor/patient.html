@@ -197,7 +197,7 @@
     }
 
     function logout() {
-        fetch("http://127.0.0.1:5000/doctor/logout", {
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/logout", {
             method: "POST",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("doctorToken")

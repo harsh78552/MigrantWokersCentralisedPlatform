@@ -180,7 +180,7 @@ document.getElementById("patientForm").addEventListener("submit", async function
     });
 
     try {
-        const res = await fetch("http://127.0.0.1:5000/patient/registration", {
+        const res = await fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/registration", {
             method: "POST",
             body: formData
         });
