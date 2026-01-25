@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard - Digital Health Record</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        header {
+            background: #0066cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        header button {
+            background: #ff4d4d;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .search-area input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        .search-area button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .patient-card {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .patient-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+        }
+
+        .info p {
+            margin: 4px 0;
+        }
+
+        .tabs button {
+            padding: 8px 15px;
+            margin-right: 5px;
+            cursor: pointer;
+            border: none;
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        .tabs button.active {
+            background: #0066cc;
+            color: white;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        textarea, select, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .emergency-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .risk {
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .low { background: #c3f3c3; }
+        .medium { background: #fff3b0; }
+        .high { background: #ffb3b3; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Doctor Dashboard</h2>
+    <button>Logout</button>
+</header>
+
+<div class="container">
+
+    <!-- Patient Search -->
+    <div class="section search-area">
+        <h3>Search Patient</h3>
+        <input type="text" placeholder="Health ID / Mobile No">
+        <button>Search</button>
+        <button>Scan QR</button>
+    </div>
+
+    <!-- Patient Info -->
+    <div class="section">
+        <h3>Patient Basic Information</h3>
+        <div class="patient-card">
+            <img src="https://via.placeholder.com/80" alt="Patient">
+            <div class="info">
+                <p><b>Name:</b> Ramesh Kumar</p>
+                <p><b>Age:</b> 34 | <b>Gender:</b> Male</p>
+                <p><b>Blood Group:</b> O+</p>
+                <p><b>Allergies:</b> Penicillin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical History Tabs -->
+    <div class="section">
+        <h3>Medical History</h3>
+        <div class="tabs">
+            <button class="active" onclick="openTab('illness')">Past Illness</button>
+            <button onclick="openTab('medicine')">Medicines</button>
+            <button onclick="openTab('reports')">Lab Reports</button>
+            <button onclick="openTab('visits')">Visits</button>
+        </div>
+
+        <div id="illness" class="tab-content active">
+            <p>Diabetes (2021), BP (2023)</p>
+        </div>
+
+        <div id="medicine" class="tab-content">
+            <p>Metformin, Amlodipine</p>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <p>Blood Test - Normal</p>
+        </div>
+
+        <div id="visits" class="tab-content">
+            <p>Last visit: 12-Dec-2025</p>
+        </div>
+    </div>
+
+    <!-- New Consultation -->
+    <div class="section">
+        <h3>New Consultation</h3>
+
+        <label>Symptoms</label>
+        <textarea placeholder="Enter symptoms"></textarea>
+
+        <label>Diagnosis</label>
+        <select>
+            <option>Select diagnosis</option>
+            <option>Fever</option>
+            <option>Infection</option>
+            <option>Diabetes Check</option>
+        </select>
+
+        <label>Prescribed Medicines</label>
+        <input type="text" placeholder="Medicine name & dosage">
+
+        <button class="save-btn">Save Consultation</button>
+    </div>
+
+    <!-- Health Risk -->
+    <div class="section">
+        <h3>Health Risk Summary</h3>
+        <span class="risk medium">Medium Risk</span>
+    </div>
+
+    <!-- Emergency -->
+    <div class="section">
+        <button class="emergency-btn">EMERGENCY MODE</button>
+    </div>
+
+</div>
+
+<script>
+    function openTab(tabId) {
+        let tabs = document.querySelectorAll('.tab-content');
+        let buttons = document.querySelectorAll('.tabs button');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

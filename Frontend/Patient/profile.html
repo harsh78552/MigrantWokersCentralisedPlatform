@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const profileData = localStorage.getItem("patientProfileData");
+
+        if (!profileData) {
+            window.location.replace("main_page.html");
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+        }
+
+        header {
+            background: #0b5ed7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .profile-container {
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .section {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .section h3 {
+            margin-top: 0;
+            color: #0b5ed7;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: gray;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    My Profile
+</header>
+
+<div class="profile-container" id="profile"></div>
+
+<footer>
+    Digital Health Record System – Government of Kerala
+</footer>
+
+<script>
+    const data = JSON.parse(localStorage.getItem("patientProfileData"));
+
+    const profileDiv = document.getElementById("profile");
+
+    profileDiv.innerHTML = `
+        <div class="section">
+            <h3>Personal Information</h3>
+            <div class="row"><span class="label">Full Name</span><span>${data.full_name}</span></div>
+            <div class="row"><span class="label">Age</span><span>${data.age}</span></div>
+            <div class="row"><span class="label">Gender</span><span>${data.gender}</span></div>
+            <div class="row"><span class="label">Blood Group</span><span>${data.blood_group}</span></div>
+        </div>
+
+        <div class="section">
+            <h3>Contact Information</h3>
+            <div class="row"><span class="label">Email</span><span>${data.email}</span></div>
+            <div class="row"><span class="label">Mobile</span><span>${data.mobile_number}</span></div>
+            <div class="row"><span class="label">Address</span><span>${data.current_address}</span></div>
+            <div class="row"><span class="label">Location</span><span>${data.current_location}</span></div>
+            <div class="row"><span class="label">Home State</span><span>${data.home_state}</span></div>
+        </div>
+
+        <div class="section">
+            <h3>Work & Language</h3>
+            <div class="row"><span class="label">Work Type</span><span>${data.work_type}</span></div>
+            <div class="row"><span class="label">Employer</span><span>${data.employer}</span></div>
+            <div class="row"><span class="label">Language</span><span>${data.native_language}</span></div>
+        </div>
+
+        <div class="section">
+            <h3>Identity</h3>
+            <div class="row"><span class="label">ID Type</span><span>${data.id_type}</span></div>
+            <div class="row"><span class="label">ID Number</span><span>${data.id_number}</span></div>
+        </div>
+    `;
+</script>
+
+</body>
+</html>

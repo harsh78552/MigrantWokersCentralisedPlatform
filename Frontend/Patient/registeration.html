@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Registration</title>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #eef2f7, #dbeafe);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* STICKY RESPONSE BOX */
+        #responseBox {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #ecfdf5;
+            color: #065f46;
+            border-bottom: 3px solid #10b981;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-bottom: 3px solid #ef4444;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2563eb;
+        }
+
+        h3 {
+            margin-top: 20px;
+            font-size: 15px;
+            border-left: 4px solid #2563eb;
+            padding-left: 8px;
+        }
+
+        label {
+            margin-top: 12px;
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="responseBox"></div>
+
+<div class="container">
+    <h2>Patient Registration</h2>
+
+    <form id="patientForm" enctype="multipart/form-data">
+
+        <h3>Basic Details</h3>
+
+        <label>Profile Photo</label>
+        <input type="file" id="profile_photo">
+
+        <label>Full Name</label>
+        <input type="text" id="full_name" required>
+
+        <label>Email</label>
+        <input type="email" id="email" required>
+
+        <label>Password</label>
+        <input type="password" id="password" required>
+
+        <label>Age</label>
+        <input type="number" id="age" required>
+
+        <label>Gender</label>
+        <select id="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label>Mobile Number</label>
+        <input type="text" id="mobile_number" required>
+
+        <label>Current Address</label>
+        <textarea id="current_address"></textarea>
+
+        <label>Home State</label>
+        <input type="text" id="home_state" required>
+
+        <label>Native Language</label>
+        <input type="text" id="native_language" required>
+
+        <label>Work Type</label>
+        <input type="text" id="work_type" required>
+
+        <label>Employer</label>
+        <input type="text" id="employer" required>
+
+        <label>Current Location</label>
+        <input type="text" id="current_location" required>
+
+        <label>Blood Group</label>
+        <input type="text" id="blood_group" required>
+
+        <h3>ID Proof</h3>
+
+        <label>ID Type</label>
+        <input type="text" id="id_type" required>
+
+        <label>ID Number</label>
+        <input type="text" id="id_number" required>
+
+        <button type="submit">Register Patient</button>
+    </form>
+</div>
+
+<script>
+document.getElementById("patientForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const box = document.getElementById("responseBox");
+    box.style.display = "none";
+    box.className = "";
+
+    const formData = new FormData();
+
+    const photo = document.getElementById("profile_photo");
+    if (photo.files.length > 0) {
+        formData.append("profile_photo", photo.files[0]);
+    }
+
+    [
+        "full_name","email","password","age","gender",
+        "mobile_number","current_address","home_state",
+        "native_language","work_type","employer",
+        "current_location","blood_group",
+        "id_type","id_number"
+    ].forEach(field => {
+        formData.append(field, document.getElementById(field).value);
+    });
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/patient/registration", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        box.style.display = "block";
+        box.className = res.ok ? "success" : "error";
+        box.innerHTML = data.message || "Something went wrong";
+
+        if (res.ok) {
+            document.getElementById("patientForm").reset();
+        }
+
+    } catch {
+        box.style.display = "block";
+        box.className = "error";
+        box.innerHTML = "Server not reachable";
+    }
+});
+</script>
+
+</body>
+</html>

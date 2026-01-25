@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            box-sizing:border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+        body{
+            margin:0;
+            background: linear-gradient(120deg,#1e3c72,#2a5298);
+            padding:30px;
+        }
+        .container{
+            max-width:1000px;
+            margin:auto;
+            background:#fff;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);
+        }
+        h2{
+            text-align:center;
+            margin-bottom:25px;
+            color:#2a5298;
+        }
+        form{
+            display:grid;
+            grid-template-columns: repeat(2,1fr);
+            gap:18px;
+        }
+        label{
+            font-weight:600;
+            font-size:14px;
+        }
+        input, select{
+            width:100%;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            outline:none;
+        }
+        input:focus, select:focus{
+            border-color:#2a5298;
+        }
+        .full{
+            grid-column:1/3;
+        }
+        button{
+            grid-column:1/3;
+            padding:12px;
+            font-size:16px;
+            background:#2a5298;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        }
+        button:hover{
+            background:#1e3c72;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Doctor Registration</h2>
+
+    <form id="doctorForm" enctype="multipart/form-data">
+
+        <!-- Basic Info -->
+        <div>
+            <label>Full Name</label>
+            <input type="text" name="name" required>
+        </div>
+
+        <div>
+            <label>Gender</label>
+            <select name="gender" required>
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Date of Birth</label>
+            <input type="date" name="date_of_birth" required>
+        </div>
+
+        <div>
+            <label>Mobile Number</label>
+            <input type="tel" name="mobile_number" required>
+        </div>
+
+        <div>
+            <label>Email</label>
+            <input type="email" name="email_id" required>
+        </div>
+
+        <div>
+            <label>Alternate Phone</label>
+            <input type="tel" name="alternate_phone_number">
+        </div>
+
+        <!-- Professional Info -->
+        <div>
+            <label>Medical Registration Number</label>
+            <input type="text" name="medical_registration_number" required>
+        </div>
+
+        <div>
+            <label>Medical Council</label>
+            <input type="text" name="medical_council_name" required>
+        </div>
+
+        <div>
+            <label>Specialization</label>
+            <input type="text" name="specialization" required>
+        </div>
+
+        <div>
+            <label>Years of Experience</label>
+            <input type="number" name="year_of_experience" min="0" required>
+        </div>
+
+        <div>
+            <label>Hospital Name</label>
+            <input type="text" name="working_hospital_name" required>
+        </div>
+
+        <div>
+            <label>Department</label>
+            <select name="department" required>
+                <option value="">Select Department</option>
+                <option>General Medicine</option>
+                <option>Cardiology</option>
+                <option>Neurology</option>
+                <option>Orthopedics</option>
+                <option>Pediatrics</option>
+                <option>Gynecology</option>
+                <option>Dermatology</option>
+                <option>Psychiatry</option>
+                <option>ENT</option>
+                <option>Ophthalmology</option>
+                <option>Radiology</option>
+                <option>Anesthesiology</option>
+                <option>Emergency Medicine</option>
+                <option>Oncology</option>
+                <option>Urology</option>
+                <option>Nephrology</option>
+                <option>Gastroenterology</option>
+                <option>Pulmonology</option>
+                <option>Endocrinology</option>
+                <option>Dental</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Work Location</label>
+            <input type="text" name="work_location" required>
+        </div>
+
+        <!-- Login Info -->
+        <div>
+            <label>Username</label>
+            <input type="text" name="userName" required>
+        </div>
+
+        <div>
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div>
+            <label>Preferred Language</label>
+            <select name="preferred_language" required>
+                <option>English</option>
+                <option>Hindi</option>
+                <option>Malayalam</option>
+                <option>Tamil</option>
+                <option>Telugu</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Medical Certificate</label>
+            <input type="file" name="medical_certificate_image" required>
+        </div>
+
+        <div>
+            <label>Government ID Proof</label>
+            <input type="file" name="government_id_proof_image" required>
+        </div>
+
+        <div class="full">
+            <label>Profile Photo (optional)</label>
+            <input type="file" name="profile_photo_image">
+        </div>
+
+        <button type="submit">Register Doctor</button>
+
+    </form>
+</div>
+
+<script>
+    document.getElementById("doctorForm").addEventListener("submit", async function(e){
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        try{
+            const response = await fetch("http://127.0.0.1:5000/doctor-registration",{
+                method:"POST",
+                body:formData
+            });
+
+            const data = await response.json();
+
+
+            if(response.ok){
+                alert("Doctor registered successfully");
+                this.reset();
+            }else{
+                alert(data.message || "Registration failed");
+            }
+        }catch(err){
+            alert("Server error");
+            console.error(err);
+        }
+    });
+</script>
+
+</body>
+</html>

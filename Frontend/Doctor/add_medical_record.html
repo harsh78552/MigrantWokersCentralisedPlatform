@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Medical Record</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const token = localStorage.getItem("doctorToken");
+        if (!token) window.location.replace("login.html");
+
+        fetch("http://127.0.0.1:5000/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        }).then(res => {
+            if (!res.ok) logout();
+        }).catch(() => logout());
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root{
+            --bg:#f8fafc;
+            --card:#ffffff;
+            --text:#0f172a;
+            --muted:#64748b;
+            --blue:#2563eb;
+            --border:#e5e7eb;
+        }
+
+        *{box-sizing:border-box;}
+
+        body{
+            margin:0;
+            font-family:Segoe UI,Arial,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+        }
+
+        header{
+            background:linear-gradient(135deg,#020617,#1e293b);
+            color:#fff;
+            padding:22px 30px;
+            font-size:22px;
+            font-weight:700;
+        }
+
+        .container{
+            max-width:950px;
+            margin:auto;
+            padding:30px 20px;
+        }
+
+        .card{
+            background:var(--card);
+            border-radius:22px;
+            padding:32px;
+            box-shadow:0 30px 60px rgba(0,0,0,.08);
+        }
+
+        .tabs{
+            display:flex;
+            gap:12px;
+            margin-bottom:28px;
+        }
+
+        .tab{
+            flex:1;
+            padding:14px;
+            border-radius:999px;
+            border:1px solid var(--border);
+            background:#f1f5f9;
+            font-weight:700;
+            cursor:pointer;
+            text-align:center;
+            transition:.2s;
+        }
+
+        .tab:hover{background:#e2e8f0;}
+
+        .tab.active{
+            background:var(--blue);
+            color:white;
+        }
+
+        .tab-content{display:none;}
+        .tab-content.active{display:block;}
+
+        .form-group{margin-bottom:20px;}
+
+        label{
+            font-weight:700;
+            display:block;
+            margin-bottom:6px;
+        }
+
+        input,textarea,select{
+            width:100%;
+            padding:13px;
+            border-radius:12px;
+            border:1px solid var(--border);
+            font-size:15px;
+        }
+
+        textarea{min-height:100px;}
+
+        .row{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+            gap:18px;
+        }
+
+        .actions{
+            margin-top:30px;
+            display:flex;
+            gap:14px;
+        }
+
+        .btn{
+            padding:14px 26px;
+            border-radius:999px;
+            border:none;
+            font-weight:700;
+            cursor:pointer;
+            color:white;
+            transition:.2s;
+        }
+
+        .btn.save{background:var(--blue);}
+        .btn.save:disabled{opacity:.6;cursor:not-allowed;}
+        .btn.reset{background:#475569;}
+
+        .message{
+            display:none;
+            padding:15px;
+            border-radius:14px;
+            margin-bottom:22px;
+            font-weight:700;
+        }
+
+        .success{background:#dcfce7;color:#166534;}
+        .error{background:#fee2e2;color:#991b1b;}
+    </style>
+</head>
+
+<body>
+
+<header>📝 Add Medical Record</header>
+
+<div class="container">
+    <div class="card">
+
+        <div id="messageBox" class="message"></div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('clinical')">📝 Clinical</div>
+            <div class="tab" onclick="openTab('reports')">📄 Reports</div>
+        </div>
+
+        <form id="recordForm" enctype="multipart/form-data">
+
+            <div id="clinical" class="tab-content active">
+                <div class="row">
+                    <div class="form-group">
+                        <label>Patient ID</label>
+                        <input type="text" name="patient_id" required minlength="3">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Diagnosis</label>
+                    <textarea name="diagnosis" required minlength="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Prescription</label>
+                    <textarea name="prescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor Notes</label>
+                    <textarea name="notes"></textarea>
+                </div>
+            </div>
+
+            <div id="reports" class="tab-content">
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select name="report_type" id="reportTypeSelect">
+                        <option value="">No report</option>
+                        <option value="blood_test">Blood Test</option>
+                        <option value="xray">X-Ray</option>
+                        <option value="mri">MRI</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="otherReportBox" style="display:none;">
+                    <label>Other Report</label>
+                    <input type="text" name="report_type_other">
+                </div>
+
+                <div class="form-group">
+                    <label>Upload File</label>
+                    <input type="file" name="report_file" accept=".pdf,.jpg,.png,.jpeg">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn save" id="saveBtn" type="submit">Save</button>
+                <button class="btn reset" type="reset">Reset</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+    const tabs=document.querySelectorAll(".tab");
+    const contents=document.querySelectorAll(".tab-content");
+    const form=document.getElementById("recordForm");
+    const messageBox=document.getElementById("messageBox");
+    const reportTypeSelect=document.getElementById("reportTypeSelect");
+    const otherReportBox=document.getElementById("otherReportBox");
+    const saveBtn=document.getElementById("saveBtn");
+
+    function openTab(id){
+        tabs.forEach(t=>t.classList.remove("active"));
+        contents.forEach(c=>c.classList.remove("active"));
+        document.querySelector(`[onclick*='${id}']`).classList.add("active");
+        document.getElementById(id).classList.add("active");
+    }
+
+    reportTypeSelect.addEventListener("change",()=>{
+        otherReportBox.style.display=
+            reportTypeSelect.value==="other"?"block":"none";
+    });
+
+    function showMessage(text,type){
+        messageBox.textContent=text;
+        messageBox.className=`message ${type}`;
+        messageBox.style.display="block";
+        setTimeout(()=>messageBox.style.display="none",4000);
+    }
+
+    form.addEventListener("submit", e => {
+    e.preventDefault();
+    saveBtn.disabled = true;
+
+    const formData = new FormData(form);
+
+    // 🔍 CONSOLE LOG (VERY IMPORTANT)
+    console.log("===== DATA SENT TO BACKEND =====");
+
+    for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log(
+                key,
+                value.name ? {
+                    fileName: value.name,
+                    size: value.size + " bytes",
+                    type: value.type
+                } : "No file selected"
+            );
+        } else {
+            console.log(key, value === "" ? "(empty string)" : value);
+        }
+    }
+
+    console.log("================================");
+
+    fetch("http://127.0.0.1:5000/doctor/add/patient/diagnosis/prescription/medical_notes", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        showMessage(data.message || "Saved successfully", "success");
+        form.reset();
+        otherReportBox.style.display = "none";
+    })
+    .catch(() => {
+        showMessage("Failed to save record", "error");
+    })
+    .finally(() => saveBtn.disabled = false);
+});
+</script>
+
+</body>
+</html>

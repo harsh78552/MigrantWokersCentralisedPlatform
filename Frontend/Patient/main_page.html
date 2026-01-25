@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- AUTH CHECK -->
+    <script>
+        const token = localStorage.getItem("patientToken");
+
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("http://127.0.0.1:5000/check/token", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            })
+            .then(res => {
+                if (!res.ok) logout();
+            })
+            .catch(() => logout());
+        }
+
+        function logout() {
+            localStorage.removeItem("patientToken");
+            localStorage.removeItem("patientProfileData");
+            window.location.replace("login.html");
+        }
+
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, null, window.location.href);
+        };
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        header {
+            background: #0b5ed7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .emergency {
+            background: #dc3545;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="txt-dashboard">
+    Patient Dashboard
+</header>
+
+<div class="container">
+
+    <div class="card" onclick="openHealthCard()">
+        <div class="icon">🪪</div>
+        <div class="title" id="txt-health-card">My Health Card</div>
+    </div>
+
+    <div class="card" onclick="openRecords()">
+        <div class="icon">📄</div>
+        <div class="title" id="txt-records">My Records</div>
+    </div>
+
+    <div class="card" onclick="go('doctor_visits.html')">
+        <div class="icon">🧑‍⚕️</div>
+        <div class="title" id="txt-doctor-visits">Doctor Visits</div>
+    </div>
+
+    <div class="card emergency" onclick="openEmergency()">
+        <div class="icon">🚨</div>
+        <div class="title" id="txt-emergency">Emergency</div>
+    </div>
+
+    <div class="card" onclick="openLanguage()">
+        <div class="icon">🌐</div>
+        <div class="title" id="txt-language">Language</div>
+    </div>
+
+    <div class="card" onclick="openProfile()">
+        <div class="icon">👤</div>
+        <div class="title" id="txt-profile">My Profile</div>
+    </div>
+
+    <div class="card" onclick="openHelp()">
+        <div class="icon">📞</div>
+        <div class="title" id="txt-help">Help</div>
+    </div>
+
+</div>
+
+<footer>
+    Digital Health Record System – Government of Kerala
+</footer>
+
+<!-- TRANSLATION SYSTEM -->
+<script src="translations.js"></script>
+<script>
+    applyLanguage();
+
+    function go(page) {
+        window.location.href = page;
+    }
+
+    function openHealthCard() {
+        fetch("http://127.0.0.1:5000/patient/health-card", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+        })
+        .then(data => {
+            localStorage.setItem("healthCardData", JSON.stringify(data));
+            window.location.href = "health_card.html";
+        })
+        .catch(() => {
+            alert("Session expired. Please login again.");
+            logout();
+        });
+    }
+
+    function openProfile() {
+        fetch("http://127.0.0.1:5000/patient/profile", {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("patientToken")
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+        })
+        .then(data => {
+            localStorage.setItem("patientProfileData", JSON.stringify(data));
+            window.location.href = "profile.html";
+        })
+        .catch(() => {
+            alert("Session expired. Please login again.");
+            logout();
+        });
+    }
+
+    function openRecords() {
+        window.location.href = "medical_data.html";
+    }
+
+    function openEmergency() {
+        window.location.href = "emergency.html";
+    }
+
+    function openLanguage() {
+        window.location.href = "language.html";
+    }
+
+    function openHelp() {
+        window.location.href = "help.html";
+    }
+</script>
+
+</body>
+</html>

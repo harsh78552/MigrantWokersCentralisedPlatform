@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Profile</title>
+    <script>
+        const token = localStorage.getItem("doctorToken");
+
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("http://127.0.0.1:5000/check/token", {
+                headers: { "Authorization": "Bearer " + token }
+            }).then(res => {
+                if (!res.ok) logout();
+            }).catch(() => logout());
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
+    </script>
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .profile {
+            width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        /* IMAGE BOX (NOT ROUND) */
+        .photo-box {
+            width: 150px;
+            min-height: 150px;
+            border: 1px solid #ccc;
+            background: #f1f1f1;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: auto;        /* 🔥 MOST IMPORTANT */
+            display: block;
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .section h3 {
+            color: #1e90ff;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .box {
+            background: #f1f5ff;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="profile">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="photo-box">
+            <img id="profile_photo" alt="Doctor Photo">
+        </div>
+
+        <div>
+            <h2 id="full_name">Loading...</h2>
+            <p><b>Role:</b> <span id="role"></span></p>
+            <p><b>Specialization:</b> <span id="specialization"></span></p>
+        </div>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="section">
+        <h3>Personal Information</h3>
+        <div class="grid">
+            <div class="box">Gender: <b id="gender"></b></div>
+            <div class="box">Date of Birth: <b id="dob"></b></div>
+            <div class="box">Mobile: <b id="mobile"></b></div>
+            <div class="box">Alternate Phone: <b id="alt_phone"></b></div>
+            <div class="box">Email: <b id="email"></b></div>
+            <div class="box">Preferred Language: <b id="language"></b></div>
+        </div>
+    </div>
+
+    <!-- Professional Info -->
+    <div class="section">
+        <h3>Professional Information</h3>
+        <div class="grid">
+            <div class="box">Medical Reg. No: <b id="reg_no"></b></div>
+            <div class="box">Medical Council: <b id="council"></b></div>
+            <div class="box">Experience: <b id="experience"></b> Years</div>
+            <div class="box">Hospital: <b id="hospital"></b></div>
+            <div class="box">Department: <b id="department"></b></div>
+            <div class="box">Work Location: <b id="location"></b></div>
+        </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="section">
+        <h3>Documents</h3>
+        <div class="grid">
+            <div class="box">
+                Medical Certificate:
+                <a id="medical_certificate" target="_blank">View</a>
+            </div>
+            <div class="box">
+                Government ID Proof:
+                <a id="government_id" target="_blank">View</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    fetch("http://127.0.0.1:5000/doctor/profile", {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Image URL:", data.profile_photo);
+
+        document.getElementById("profile_photo").src = data.profile_photo;
+
+        document.getElementById("full_name").innerText = data.full_name;
+        document.getElementById("role").innerText = data.role;
+        document.getElementById("specialization").innerText = data.specialization;
+
+        document.getElementById("gender").innerText = data.gender;
+        document.getElementById("dob").innerText = data.date_of_birth;
+        document.getElementById("mobile").innerText = data.mobile_number;
+        document.getElementById("alt_phone").innerText = data.alternate_phone_number;
+        document.getElementById("email").innerText = data.email_id;
+        document.getElementById("language").innerText = data.preferred_language;
+
+        document.getElementById("reg_no").innerText = data.medical_registration_number;
+        document.getElementById("council").innerText = data.medical_council_name;
+        document.getElementById("experience").innerText = data.year_of_experience;
+        document.getElementById("hospital").innerText = data.hospital_name;
+        document.getElementById("department").innerText = data.department;
+        document.getElementById("location").innerText = data.work_location;
+
+        document.getElementById("medical_certificate").href = data.medical_certificate;
+        document.getElementById("government_id").href = data.government_id_proof;
+    })
+    .catch(err => {
+        console.log(err);
+        alert("Profile load failed");
+    });
+</script>
+
+</body>
+</html>

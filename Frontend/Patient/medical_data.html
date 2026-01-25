@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Records</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- AUTH CHECK -->
+    <script>
+        const token = localStorage.getItem("patientToken");
+        if (!token) {
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --blue: #2563eb;
+            --green: #16a34a;
+            --red: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: white;
+            padding: 18px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: var(--blue);
+            color: white;
+        }
+
+        /* CONTENT */
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .item {
+            flex: 1;
+            min-width: 200px;
+            color: var(--muted);
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .badge.normal { background: #dcfce7; color: #166534; }
+        .badge.critical { background: #fee2e2; color: #991b1b; }
+
+        .empty {
+            color: var(--muted);
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>📁 My Records</header>
+
+<div class="container">
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="openTab('emergency')">Emergencies</div>
+        <div class="tab" onclick="openTab('prescriptions')">Prescriptions</div>
+        <div class="tab" onclick="openTab('reports')">Reports</div>
+    </div>
+
+    <!-- EMERGENCY HISTORY -->
+    <div id="emergency" class="content active"></div>
+
+    <!-- PRESCRIPTIONS -->
+    <div id="prescriptions" class="content"></div>
+
+    <!-- REPORTS -->
+    <div id="reports" class="content"></div>
+
+</div>
+
+<script>
+    const headers = {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+    };
+
+    function openTab(id) {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+
+        document.querySelector(`[onclick="openTab('${id}')"]`).classList.add("active");
+        document.getElementById(id).classList.add("active");
+
+        if (id === "emergency") loadEmergencyHistory();
+        if (id === "prescriptions") loadPrescriptions();
+        if (id === "reports") loadReports();
+    }
+
+    /* ================= EMERGENCY HISTORY ================= */
+    function loadEmergencyHistory() {
+        fetch("http://127.0.0.1:5000/patient/emergency/history", { headers })
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("emergency");
+            container.innerHTML = "";
+
+            if (!Array.isArray(data) || data.length === 0) {
+                container.innerHTML = `<div class="empty">No emergency history found</div>`;
+                return;
+            }
+
+            data.forEach(e => {
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="title">Emergency ID: ${e.emergency_id}</div>
+                        <span class="badge ${e.severity}">${e.severity}</span>
+                        <div class="row">
+                            <div class="item">Doctor: ${e.doctor_name || "-"}</div>
+                            <div class="item">Date: ${new Date(e.created_at).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    /* ================= PRESCRIPTIONS ================= */
+    function loadPrescriptions() {
+        fetch("http://127.0.0.1:5000/patient/prescriptions", { headers })
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("prescriptions");
+            container.innerHTML = "";
+
+            if (!Array.isArray(data) || data.length === 0) {
+                container.innerHTML = `<div class="empty">No prescriptions available</div>`;
+                return;
+            }
+
+            data.forEach(p => {
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="title">Doctor: ${p.doctor_name}</div>
+                        <div class="item">Date: ${new Date(p.date).toLocaleString()}</div>
+                        <div class="item">Medicines: ${p.medicines.join(", ")}</div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    /* ================= REPORTS ================= */
+    function loadReports() {
+        fetch("http://127.0.0.1:5000/patient/reports", { headers })
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("reports");
+            container.innerHTML = "";
+
+            if (!Array.isArray(data) || data.length === 0) {
+                container.innerHTML = `<div class="empty">No reports uploaded</div>`;
+                return;
+            }
+
+            data.forEach(r => {
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="title">${r.report_name}</div>
+                        <a href="${r.file_url}" target="_blank">View / Download</a>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // Load default tab
+    loadEmergencyHistory();
+</script>
+
+</body>
+</html>

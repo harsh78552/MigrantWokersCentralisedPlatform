@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Emergency Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- AUTH CHECK -->
+    <script>
+        const token = localStorage.getItem("doctorToken");
+
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("http://127.0.0.1:5000/check/token", {
+                headers: { "Authorization": "Bearer " + token }
+            }).then(res => {
+                if (!res.ok) logout();
+            }).catch(() => logout());
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
+    </script>
+
+
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --blue: #2563eb;
+            --green: #16a34a;
+            --red: #dc2626;
+            --green-bg: #dcfce7;
+            --red-bg: #fee2e2;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: white;
+            padding: 22px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .message {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .message.success { background: var(--green-bg); color: var(--green); }
+        .message.error { background: var(--red-bg); color: var(--red); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+        .card.critical { border-left: 6px solid var(--red); }
+        .card.normal { border-left: 6px solid var(--green); }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .badge.normal { background: var(--green-bg); color: var(--green); }
+        .badge.critical { background: var(--red-bg); color: var(--red); }
+
+        .meta {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn.navigate { background: var(--green); }
+        .btn.accept { background: var(--blue); }
+
+        .empty {
+            color: var(--muted);
+            font-size: 16px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>🚨 Doctor Emergency Dashboard</header>
+
+<div class="container">
+    <div id="messageBox" class="message"></div>
+    <h3>Active Emergencies</h3>
+    <div id="activeList" class="grid"></div>
+</div>
+
+<script>
+    const activeList = document.getElementById("activeList");
+    const messageBox = document.getElementById("messageBox");
+
+    function showMessage(text, type) {
+        messageBox.innerText = text;
+        messageBox.className = `message ${type}`;
+        messageBox.style.display = "block";
+        setTimeout(() => messageBox.style.display = "none", 4000);
+    }
+
+    function openLocation(lat, lng) {
+        window.open(
+            `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+            "_blank"
+        );
+    }
+
+    function loadEmergencies() {
+        fetch("http://127.0.0.1:5000/doctor/active/emergency", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => res.json())
+        .then(data => {
+            activeList.innerHTML = "";
+
+            if (!Array.isArray(data) || data.length === 0) {
+                activeList.innerHTML = `<div class="empty">No active emergencies 🚑</div>`;
+                return;
+            }
+
+            data.forEach(e => {
+                const card = document.createElement("div");
+                card.className = `card ${e.severity}`;
+
+                card.innerHTML = `
+                    <h4>Patient ID: ${e.patient_id}</h4>
+                    <div class="meta">Emergency ID: ${e.emergency_id}</div>
+                    <span class="badge ${e.severity}">
+                        ${e.severity === "critical" ? "🔴 Critical Emergency" : "🟢 Normal Emergency"}
+                    </span>
+                    <div class="meta">
+                        Time: ${new Date(e.time).toLocaleString()}
+                    </div>
+                `;
+
+                const actions = document.createElement("div");
+                actions.className = "actions";
+
+                const navBtn = document.createElement("button");
+                navBtn.className = "btn navigate";
+                navBtn.innerText = "Navigate";
+                navBtn.onclick = () => openLocation(e.latitude, e.longitude);
+
+                const acceptBtn = document.createElement("button");
+                acceptBtn.className = "btn accept";
+                acceptBtn.innerText = "Accept Emergency";
+
+                // ✅ PASS BOTH emergency_id AND patient_id
+                acceptBtn.onclick = () =>
+                    acceptEmergency(e.emergency_id, e.patient_id);
+
+                actions.appendChild(navBtn);
+                actions.appendChild(acceptBtn);
+                card.appendChild(actions);
+
+                activeList.appendChild(card);
+            });
+        });
+    }
+
+    function acceptEmergency(emergencyId, patientId) {
+        fetch("http://127.0.0.1:5000/doctor/accept/emergency", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                emergency_id: emergencyId,
+                patient_id: patientId
+            })
+        })
+        .then(async res => {
+            const data = await res.json();
+            if (res.ok) {
+                showMessage(data.message, "success");
+                loadEmergencies();
+            } else {
+                showMessage(data.message, "error");
+            }
+        })
+        .catch(() => {
+            showMessage("Server not responding", "error");
+        });
+    }
+
+    loadEmergencies();
+    setInterval(loadEmergencies, 15000);
+</script>
+
+</body>
+</html>

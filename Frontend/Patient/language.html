@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Language</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        if (!localStorage.getItem("patientToken")) {
+            window.location.replace("login.html");
+        }
+
+        const currentLang = localStorage.getItem("language") || "en";
+
+        function setLanguage(lang) {
+            localStorage.setItem("language", lang);
+
+            const msg = document.getElementById("success-msg");
+            msg.classList.add("show");
+
+            setTimeout(() => {
+                window.location.href = "main_page.html";
+            }, 1500);
+        }
+
+        window.onload = () => {
+            const selected = document.getElementById(currentLang);
+            if (selected) selected.classList.add("active");
+        };
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #eef3ff, #f9fbff);
+            min-height: 100vh;
+        }
+
+        header {
+            background: #0b5ed7;
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .hint {
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .lang-card {
+            background: white;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+        }
+
+        .lang-card:hover {
+            transform: translateY(-2px);
+            background: #f4f7ff;
+        }
+
+        .lang-card.active {
+            border-color: #0b5ed7;
+            background: #eef3ff;
+        }
+
+        .lang-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flag {
+            font-size: 26px;
+        }
+
+        .lang-name {
+            font-weight: 500;
+        }
+
+        .check {
+            font-size: 18px;
+            color: #0b5ed7;
+            display: none;
+        }
+
+        .lang-card.active .check {
+            display: block;
+        }
+
+        /* ✅ SUCCESS MESSAGE */
+        .success {
+            text-align: center;
+            background: #e7f4ea;
+            color: #1e7e34;
+            border: 1px solid #c3e6cb;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    🌐 Select Language
+</header>
+
+<div class="container">
+
+    <!-- SUCCESS MESSAGE -->
+
+
+
+    <div class="lang-card" id="en" onclick="setLanguage('en')">
+        <div class="lang-left">
+            <span class="flag">🇬🇧</span>
+            <span class="lang-name">English</span>
+        </div>
+        <span class="check">✔</span>
+    </div>
+
+    <div class="lang-card" id="hi" onclick="setLanguage('hi')">
+        <div class="lang-left">
+            <span class="flag">🇮🇳</span>
+            <span class="lang-name">हिन्दी (Hindi)</span>
+        </div>
+        <span class="check">✔</span>
+    </div>
+
+    <div class="lang-card" id="ml" onclick="setLanguage('ml')">
+        <div class="lang-left">
+            <span class="flag">🇮🇳</span>
+            <span class="lang-name">മലയാളം (Malayalam)</span>
+        </div>
+        <span class="check">✔</span>
+    </div>
+
+    <div class="lang-card" id="ta" onclick="setLanguage('ta')">
+        <div class="lang-left">
+            <span class="flag">🇮🇳</span>
+            <span class="lang-name">தமிழ் (Tamil)</span>
+        </div>
+        <span class="check">✔</span>
+    </div>
+<div class="success" id="success-msg">
+        Language updated successfully
+    </div>
+</div>
+
+<footer>
+    Digital Health Record System – Government of Kerala
+</footer>
+
+</body>
+</html>

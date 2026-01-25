@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- AUTH CHECK -->
+    <script>
+        const token = localStorage.getItem("doctorToken");
+
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("http://127.0.0.1:5000/check/token", {
+                headers: { "Authorization": "Bearer " + token }
+            }).then(res => {
+                if (!res.ok) logout();
+            }).catch(() => logout());
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+
+            --blue: #2563eb;
+            --green: #16a34a;
+            --purple: #7c3aed;
+            --orange: #f59e0b;
+            --red: #dc2626;
+            --dark: #020617;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: white;
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .nav-buttons button {
+            margin-left: 10px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .nav-buttons button:hover {
+            opacity: 0.9;
+        }
+
+        .profile-btn   { background: var(--blue); }
+        .patient-btn   { background: var(--green); }
+        .record-btn    { background: var(--purple); }
+        .appoint-btn   { background: var(--orange); }
+        .emergency-btn { background: var(--red); }
+        .logout-btn    { background: #334155; }
+
+        /* MAIN */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 40px 24px;
+        }
+
+        /* WELCOME */
+        .welcome {
+            background: var(--card);
+            border-radius: 22px;
+            padding: 36px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+        }
+
+        .welcome h3 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        /* QUICK ACTIONS */
+        .actions {
+            margin-top: 36px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            cursor: pointer;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 6px solid transparent;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+
+        .action-card h4 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .action-card p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .action-card.emergency {
+            border-left-color: var(--red);
+        }
+
+        .action-card.patients {
+            border-left-color: var(--green);
+        }
+
+        .action-card.records {
+            border-left-color: var(--purple);
+        }
+
+        .action-card.appointments {
+            border-left-color: var(--orange);
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>Doctor Dashboard</h2>
+    <div class="nav-buttons">
+        <button class="profile-btn" onclick="goProfile()">Profile</button>
+        <button class="patient-btn" onclick="goPatients()">Patients</button>
+        <button class="record-btn" onclick="goAddRecord()">Add Record</button>
+        <button class="appoint-btn" onclick="goAppointments()">Appointments</button>
+        <button class="emergency-btn" onclick="goEmergency()">🚨 Emergencies</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <div class="welcome">
+        <h3>Welcome Doctor 👨‍⚕️</h3>
+        <p>
+            This dashboard helps you manage patient care efficiently.
+            Access emergencies, patient records, appointments, and medical
+            documentation from one secure place.
+        </p>
+
+        <div class="actions">
+
+            <div class="action-card emergency" onclick="goEmergency()">
+                <h4>🚨 Emergency Dashboard</h4>
+                <p>Respond to active emergencies and critical cases instantly.</p>
+            </div>
+
+            <div class="action-card patients" onclick="goPatients()">
+                <h4>🧑‍🤝‍🧑 Patient Management</h4>
+                <p>View assigned patients and their medical histories.</p>
+            </div>
+
+            <div class="action-card appointments" onclick="goAppointments()">
+                <h4>📅 Appointments</h4>
+                <p>Check today’s and upcoming consultation schedules.</p>
+            </div>
+
+            <div class="action-card records" onclick="goAddRecord()">
+                <h4>📝 Medical Records</h4>
+                <p>Add diagnosis notes, prescriptions, and treatment plans.</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function goProfile() {
+        window.location.href = "profile.html";
+    }
+
+    function goPatients() {
+        window.location.href = "patients.html";
+    }
+
+    function goAddRecord() {
+        window.location.href = "add_medical_record.html";
+    }
+
+    function goAppointments() {
+        window.location.href = "appointments.html";
+    }
+
+    function goEmergency() {
+        window.location.href = "emergency.html";
+    }
+</script>
+
+</body>
+</html>

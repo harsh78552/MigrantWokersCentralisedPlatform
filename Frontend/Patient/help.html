@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="txt-help-title">Help & Support</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        if (!localStorage.getItem("patientToken")) {
+            window.location.replace("login.html");
+        }
+
+        function toggle(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === "block" ? "none" : "block";
+        }
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        header {
+            background: #0b5ed7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #eef3ff;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-body {
+            padding: 15px;
+            display: none;
+            color: #444;
+        }
+
+        .card-body p {
+            margin: 8px 0;
+        }
+
+        .btn {
+            background: #0b5ed7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: gray;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="txt-help-header">
+    Help & Support
+</header>
+
+<div class="container">
+
+    <!-- CONTACT SUPPORT -->
+    <div class="card">
+        <div class="card-header" id="txt-contact-support" onclick="toggle('contact')">
+            📞 Contact Support
+            <span>+</span>
+        </div>
+        <div class="card-body" id="contact">
+            <p><strong id="txt-helpline">Helpline:</strong> 1800-XXX-XXXX</p>
+            <p><strong id="txt-email">Email:</strong> support@health.gov</p>
+            <p><strong id="txt-hours">Working Hours:</strong> 24 x 7</p>
+        </div>
+    </div>
+
+    <!-- EMERGENCY GUIDANCE -->
+    <div class="card">
+        <div class="card-header" id="txt-emergency-guidance" onclick="toggle('emergency')">
+            🚨 Emergency Guidance
+            <span>+</span>
+        </div>
+        <div class="card-body" id="emergency">
+            <p id="txt-emg-1">• In medical emergency, go to nearest hospital immediately.</p>
+            <p id="txt-emg-2">• Call ambulance number <strong>108</strong>.</p>
+            <p id="txt-emg-3">• Use the Emergency section on dashboard.</p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="card">
+        <div class="card-header" id="txt-faq" onclick="toggle('faq')">
+            ❓ Frequently Asked Questions
+            <span>+</span>
+        </div>
+        <div class="card-body" id="faq">
+            <p id="txt-faq-1">
+                <strong>Q:</strong> How can I see my health card?<br>
+                <strong>A:</strong> Go to Dashboard → My Health Card
+            </p>
+
+            <p id="txt-faq-2">
+                <strong>Q:</strong> Why did my session expire?<br>
+                <strong>A:</strong> For security, sessions expire automatically.
+            </p>
+
+            <p id="txt-faq-3">
+                <strong>Q:</strong> Can doctors see my data?<br>
+                <strong>A:</strong> Only authorized doctors can access your records.
+            </p>
+
+            <p id="txt-faq-4">
+                <strong>Q:</strong> How to change password?<br>
+                <strong>A:</strong> Go to Profile → Change Password.
+            </p>
+        </div>
+    </div>
+
+    <!-- REPORT ISSUE -->
+    <div class="card">
+        <div class="card-header" id="txt-report-issue" onclick="toggle('issue')">
+            📝 Report an Issue
+            <span>+</span>
+        </div>
+        <div class="card-body" id="issue">
+            <input type="text" id="txt-subject" placeholder="Subject">
+            <textarea rows="4" id="txt-description" placeholder="Describe your issue..."></textarea>
+            <button class="btn" id="txt-submit" onclick="alert('Issue submitted (demo)')">
+                Submit
+            </button>
+        </div>
+    </div>
+
+    <!-- APP INFO -->
+    <div class="card">
+        <div class="card-header" id="txt-app-info" onclick="toggle('info')">
+            ℹ️ App Information
+            <span>+</span>
+        </div>
+        <div class="card-body" id="info">
+            <p><strong id="txt-app-name">Application:</strong> Digital Health Record System</p>
+            <p><strong id="txt-version">Version:</strong> 1.0</p>
+            <p><strong id="txt-managed">Managed by:</strong> Government of Kerala</p>
+            <p id="txt-privacy">Your data is secure and privacy protected.</p>
+        </div>
+    </div>
+
+</div>
+
+<footer id="txt-footer">
+    Digital Health Record System – Government of Kerala
+</footer>
+
+<!-- 🌐 LANGUAGE SUPPORT -->
+<script src="translations.js"></script>
+<script>
+    applyLanguage();
+</script>
+
+</body>
+</html>
