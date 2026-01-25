@@ -1,5 +1,0 @@
-services:
-  - type: web
-    name: migrant-workers-platform
-    env: python
-    startCommand: gunicorn run:app
