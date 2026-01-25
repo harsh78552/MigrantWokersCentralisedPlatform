@@ -10,21 +10,26 @@ from .extensions import api, jwt, mail
 def create_app():
     app = Flask(__name__)
     configure_app(app)
+
+    # ✅ ALLOW FRONTEND (NOT BACKEND)
     CORS(
         app,
         resources={
             r"/*": {
                 "origins": [
-                    "https://migrantwokerscentralisedplatform-1.onrender.com"
+                    "https://migrant-wokers-centralised-platform-three.vercel.app",
+                    "http://localhost:63342"
                 ]
             }
         },
-        supports_credentials=True
+        supports_credentials=False
     )
 
     api.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
+
     register_doctor_blueprint(api)
     register_patient_blueprint(api)
+
     return app
