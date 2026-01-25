@@ -11,13 +11,18 @@ def create_app():
     app = Flask(__name__)
     configure_app(app)
 
-    # ✅ ALLOW FRONTEND (NOT BACKEND)
     CORS(
         app,
         resources={
             r"/*": {
                 "origins": [
+                    # Doctor frontend
                     "https://migrant-wokers-centralised-platform-three.vercel.app",
+
+                    # Patient frontend
+                    "https://migrant-wokers-centralised-platform-sigma.vercel.app",
+
+                    # Local testing
                     "http://localhost:63342"
                 ]
             }
