@@ -2,246 +2,360 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Records</title>
+    <title>Patient Health Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- AUTH CHECK -->
+    <!-- AUTH + PATIENT ID -->
     <script>
         const token = localStorage.getItem("patientToken");
-        if (!token) {
+        const params = new URLSearchParams(window.location.search);
+        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
+
+        if (!token || !patientId) {
+            window.location.replace("login.html");
+        }
+
+        localStorage.setItem("patientId", patientId);
+
+
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => { if (!res.ok) forceLogout(); })
+        .catch(() => forceLogout());
+
+        window.history.pushState(null,null,location.href);
+        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
+
+        function forceLogout(){
+            localStorage.clear();
             window.location.replace("login.html");
         }
     </script>
 
     <style>
-        :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-            --blue: #2563eb;
-            --green: #16a34a;
-            --red: #dc2626;
+        :root{
+            --primary:#0a4fbf;
+            --primary-dark:#083a8f;
+            --accent:#eaf1ff;
+            --bg:#f2f6fb;
+            --card:#ffffff;
+            --border:#dbe2ea;
+            --text:#1e293b;
+            --muted:#64748b;
+            --medical:#2563eb;
+            --test:#059669;
         }
 
-        * { box-sizing: border-box; }
+        *{box-sizing:border-box}
 
-        body {
-            margin: 0;
-            font-family: "Inter", Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+        body{
+            margin:0;
+            font-family:"Segoe UI", Arial, sans-serif;
+            background:var(--bg);
+            color:var(--text);
         }
 
-        header {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: white;
-            padding: 18px;
-            font-size: 20px;
-            font-weight: bold;
+        /* ===== HEADER ===== */
+        header{
+            background:linear-gradient(135deg,#0a4fbf,#1e6fff);
+            color:white;
+            padding:22px 28px;
+            box-shadow:0 4px 10px rgba(0,0,0,.15);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 24px;
+        header h1{
+            margin:0;
+            font-size:23px;
+            font-weight:700;
         }
 
-        /* TABS */
-        .tabs {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+        /* ===== TOP BAR ===== */
+        .topbar{
+            background:white;
+            padding:14px 28px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border-bottom:1px solid var(--border);
         }
 
-        .tab {
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: #e5e7eb;
-            cursor: pointer;
-            font-weight: 600;
+        .left{
+            display:flex;
+            align-items:center;
+            gap:14px;
         }
 
-        .tab.active {
-            background: var(--blue);
-            color: white;
+        .back-btn{
+            padding:8px 14px;
+            border-radius:6px;
+            border:1px solid var(--border);
+            background:#f8fafc;
+            font-weight:700;
+            cursor:pointer;
+            color:var(--text);
         }
 
-        /* CONTENT */
-        .content {
-            display: none;
+        .back-btn:hover{
+            background:#eef2f7;
         }
 
-        .content.active {
-            display: block;
+        .badge{
+            background:var(--accent);
+            color:var(--primary);
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:700;
         }
 
-        /* CARD */
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        /* ===== TABS ===== */
+        .tabs{
+            display:flex;
+            gap:12px;
         }
 
-        .title {
-            font-weight: 700;
-            margin-bottom: 10px;
+        .tab-btn{
+            padding:10px 20px;
+            border-radius:6px;
+            border:1px solid var(--border);
+            background:#f9fafb;
+            font-weight:700;
+            cursor:pointer;
+            color:var(--text);
         }
 
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+        .tab-btn.active{
+            background:var(--primary);
+            color:white;
+            border-color:var(--primary);
         }
 
-        .item {
-            flex: 1;
-            min-width: 200px;
-            color: var(--muted);
+        /* ===== CARD ===== */
+        .container{
+            max-width:1200px;
+            margin:26px auto;
+            background:var(--card);
+            border-radius:12px;
+            box-shadow:0 12px 28px rgba(0,0,0,.08);
+            overflow:hidden;
         }
 
-        .badge {
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: capitalize;
+        /* ===== TABLE ===== */
+        .table-header,
+        .row{
+            display:grid;
+            grid-template-columns:140px 1.3fr 1fr 120px 120px;
+            padding:16px 22px;
+            align-items:center;
         }
 
-        .badge.normal { background: #dcfce7; color: #166534; }
-        .badge.critical { background: #fee2e2; color: #991b1b; }
+        .table-header{
+            background:#f1f5fb;
+            font-weight:800;
+            font-size:14px;
+            color:#334155;
+            border-bottom:1px solid var(--border);
+        }
 
-        .empty {
-            color: var(--muted);
-            padding: 20px;
+        .row{
+            border-bottom:1px solid var(--border);
+            font-size:14px;
+        }
+
+        .row:hover{
+            background:#f8fbff;
+        }
+
+        /* ===== TAGS ===== */
+        .tag{
+            display:inline-block;
+            padding:5px 12px;
+            font-size:12px;
+            font-weight:800;
+            border-radius:20px;
+            color:white;
+            text-align:center;
+        }
+
+        .tag.medical{background:var(--medical)}
+        .tag.test{background:var(--test)}
+
+        /* ===== BUTTON ===== */
+        .btn{
+            padding:8px 16px;
+            border:none;
+            border-radius:6px;
+            background:var(--primary);
+            color:white;
+            font-size:13px;
+            font-weight:700;
+            cursor:pointer;
+        }
+
+        .btn:hover{
+            background:var(--primary-dark);
+        }
+
+        /* ===== STATES ===== */
+        .empty, .error{
+            padding:50px;
+            text-align:center;
+            font-size:14px;
+        }
+
+        .empty{color:var(--muted)}
+        .error{color:#dc2626}
+
+        /* ===== FOOTER ===== */
+        footer{
+            text-align:center;
+            padding:18px;
+            font-size:12px;
+            color:var(--muted);
         }
     </style>
 </head>
 
 <body>
 
-<header>📁 My Records</header>
+<header>
+    <h1>Patient Health Records</h1>
+</header>
 
-<div class="container">
-
-    <!-- TABS -->
-    <div class="tabs">
-        <div class="tab active" onclick="openTab('emergency')">Emergencies</div>
-        <div class="tab" onclick="openTab('prescriptions')">Prescriptions</div>
-        <div class="tab" onclick="openTab('reports')">Reports</div>
+<div class="topbar">
+    <div class="left">
+        <button class="back-btn" onclick="goBack()"> Back</button>
+        <div class="badge">Patient ID: <span id="pid"></span></div>
     </div>
 
-    <!-- EMERGENCY HISTORY -->
-    <div id="emergency" class="content active"></div>
-
-    <!-- PRESCRIPTIONS -->
-    <div id="prescriptions" class="content"></div>
-
-    <!-- REPORTS -->
-    <div id="reports" class="content"></div>
-
+    <div class="tabs">
+        <button id="medicalTab" class="tab-btn active" onclick="loadMedical()">
+            Medical Records
+        </button>
+        <button id="testTab" class="tab-btn" onclick="loadTests()">
+            Test Reports
+        </button>
+    </div>
 </div>
 
+<div class="container">
+    <div class="table-header">
+        <div>Date</div>
+        <div>Hospital / Lab</div>
+        <div>Department / Test</div>
+        <div>Type</div>
+        <div>Action</div>
+    </div>
+
+    <div id="records">
+        <div class="empty">Loading health records…</div>
+    </div>
+</div>
+
+<footer>
+    Digital Health Record System • Government & Hospital Integrated Platform
+</footer>
+
 <script>
-    const headers = {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
-    };
+    document.getElementById("pid").innerText = patientId;
+    const recordsBox = document.getElementById("records");
 
-    function openTab(id) {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
-
-        document.querySelector(`[onclick="openTab('${id}')"]`).classList.add("active");
-        document.getElementById(id).classList.add("active");
-
-        if (id === "emergency") loadEmergencyHistory();
-        if (id === "prescriptions") loadPrescriptions();
-        if (id === "reports") loadReports();
+    function goBack(){
+        window.location.href = `main_page.html?patient_id=${patientId}`;
     }
 
-    /* ================= EMERGENCY HISTORY ================= */
-    function loadEmergencyHistory() {
-        fetch("http://127.0.0.1:5000/patient/emergency/history", { headers })
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("emergency");
-            container.innerHTML = "";
+    function setActive(tab){
+        medicalTab.classList.remove("active");
+        testTab.classList.remove("active");
+        document.getElementById(tab).classList.add("active");
+    }
 
-            if (!Array.isArray(data) || data.length === 0) {
-                container.innerHTML = `<div class="empty">No emergency history found</div>`;
+    /* ===== MEDICAL ===== */
+    function loadMedical(){
+        setActive("medicalTab");
+        recordsBox.innerHTML="<div class='empty'>Loading medical records…</div>";
+
+        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/migrant/patient/medical/reports?patient_id=${patientId}`,{
+            headers:{Authorization:"Bearer "+token}
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            recordsBox.innerHTML="";
+            if(!Array.isArray(data)||data.length===0){
+                recordsBox.innerHTML="<div class='empty'>No medical records available</div>";
                 return;
             }
-
-            data.forEach(e => {
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="title">Emergency ID: ${e.emergency_id}</div>
-                        <span class="badge ${e.severity}">${e.severity}</span>
-                        <div class="row">
-                            <div class="item">Doctor: ${e.doctor_name || "-"}</div>
-                            <div class="item">Date: ${new Date(e.created_at).toLocaleString()}</div>
-                        </div>
+            data.forEach(r=>{
+                recordsBox.innerHTML+=`
+                <div class="row">
+                    <div>${new Date(r.date||r.created_at).toLocaleDateString()}</div>
+                    <div>${r.hospital_name}</div>
+                    <div>${r.department}</div>
+                    <div><span class="tag medical">Medical</span></div>
+                    <div>
+                        <button class="btn" onclick='openDetails(${JSON.stringify(r)})'>
+                            View
+                        </button>
                     </div>
-                `;
+                </div>`;
             });
-        });
+        })
+        .catch(()=>recordsBox.innerHTML="<div class='error'>Unable to load medical records</div>");
     }
 
-    /* ================= PRESCRIPTIONS ================= */
-    function loadPrescriptions() {
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/prescriptions", { headers })
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("prescriptions");
-            container.innerHTML = "";
+    /* ===== TEST ===== */
+    function loadTests(){
+    setActive("testTab");
+    recordsBox.innerHTML="<div class='empty'>Loading test reports…</div>";
 
-            if (!Array.isArray(data) || data.length === 0) {
-                container.innerHTML = `<div class="empty">No prescriptions available</div>`;
-                return;
-            }
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+        headers:{ Authorization:"Bearer "+token }
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        recordsBox.innerHTML="";
 
-            data.forEach(p => {
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="title">Doctor: ${p.doctor_name}</div>
-                        <div class="item">Date: ${new Date(p.date).toLocaleString()}</div>
-                        <div class="item">Medicines: ${p.medicines.join(", ")}</div>
+        if(!Array.isArray(data) || data.length===0){
+            recordsBox.innerHTML="<div class='empty'>No test reports available</div>";
+            return;
+        }
+
+        data.forEach(r=>{
+            const testName = r.report_name || r.report_types || "Test";
+            const date = r.created_at
+                ? new Date(r.created_at).toLocaleDateString()
+                : "N/A";
+
+            recordsBox.innerHTML += `
+                <div class="row">
+                    <div>${date}</div>
+                    <div>${r.report_category || "Lab"}</div>
+                    <div>${testName}</div>
+                    <div><span class="tag test">Test</span></div>
+                    <div>
+                        <button class="btn"
+                            onclick='openTestReport(${JSON.stringify(r)})'>
+                            View
+                        </button>
                     </div>
-                `;
-            });
+                </div>
+            `;
         });
-    }
+    })
+    .catch(()=>{
+        recordsBox.innerHTML="<div class='error'>Unable to load test reports</div>";
+    });
+}
 
-    /* ================= REPORTS ================= */
-    function loadReports() {
-        fetch("http://127.0.0.1:5000/patient/reports", { headers })
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("reports");
-            container.innerHTML = "";
+/* OPEN TEST REPORT PAGE */
+function openTestReport(record){
+    localStorage.setItem("selectedTestReport", JSON.stringify(record));
+    window.location.href = `test_report_view.html?patient_id=${patientId}`;
+}
 
-            if (!Array.isArray(data) || data.length === 0) {
-                container.innerHTML = `<div class="empty">No reports uploaded</div>`;
-                return;
-            }
-
-            data.forEach(r => {
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="title">${r.report_name}</div>
-                        <a href="${r.file_url}" target="_blank">View / Download</a>
-                    </div>
-                `;
-            });
-        });
-    }
-
-    // Load default tab
-    loadEmergencyHistory();
+    /* DEFAULT */
+    loadMedical();
 </script>
 
 </body>

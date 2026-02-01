@@ -5,210 +5,264 @@
     <title>Patient Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- AUTH CHECK -->
+    <!-- AUTH + PATIENT ID CHECK -->
     <script>
         const token = localStorage.getItem("patientToken");
+        const params = new URLSearchParams(window.location.search);
+        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
 
-        if (!token) {
-            window.location.replace("login.html");
-        } else {
-            fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-                method: "GET",
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
-            })
-            .then(res => {
-                if (!res.ok) logout();
-            })
-            .catch(() => logout());
-        }
-
-        function logout() {
-            localStorage.removeItem("patientToken");
-            localStorage.removeItem("patientProfileData");
+        if (!token || !patientId) {
             window.location.replace("login.html");
         }
 
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function () {
-            window.history.pushState(null, null, window.location.href);
-        };
+        localStorage.setItem("patientId", patientId);
+
+        // ✅ TOKEN VALIDATION
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => { if (!res.ok) forceLogout(); })
+        .catch(() => forceLogout());
+
+        // 🚫 Disable back button
+        window.history.pushState(null,null,location.href);
+        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
+
+        function forceLogout(){
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
     </script>
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
+        :root{
+            --primary:#0a4fbf;
+            --primary-dark:#083a8f;
+            --bg:#f2f6fb;
+            --card:#ffffff;
+            --border:#dbe2ea;
+            --text:#1e293b;
+            --muted:#64748b;
+            --danger:#dc2626;
         }
 
-        header {
-            background: #0b5ed7;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:"Segoe UI", Arial, sans-serif;
+            background:var(--bg);
+            color:var(--text);
         }
 
-        .container {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+        /* ===== HEADER ===== */
+        header{
+            background:linear-gradient(135deg,#0a4fbf,#1e6fff);
+            color:white;
+            padding:22px 30px;
+            box-shadow:0 4px 12px rgba(0,0,0,.18);
         }
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: 0.2s;
+        .header-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
         }
 
-        .card:hover {
-            transform: scale(1.03);
+        .header-title{
+            font-size:22px;
+            font-weight:700;
         }
 
-        .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
+        .header-sub{
+            margin-top:6px;
+            font-size:13px;
+            opacity:.95;
         }
 
-        .title {
-            font-size: 16px;
-            font-weight: bold;
+        .logout-btn{
+            background:rgba(255,255,255,.15);
+            border:1px solid rgba(255,255,255,.3);
+            color:white;
+            padding:8px 14px;
+            border-radius:6px;
+            font-weight:700;
+            cursor:pointer;
         }
 
-        .emergency {
-            background: #dc3545;
-            color: white;
+        .logout-btn:hover{
+            background:rgba(255,255,255,.25);
         }
 
-        footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: gray;
+        /* ===== DASHBOARD ===== */
+        .container{
+            max-width:1200px;
+            margin:30px auto;
+            padding:0 20px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+        }
+
+        .card{
+            background:var(--card);
+            border-radius:14px;
+            padding:24px 20px;
+            box-shadow:0 10px 25px rgba(0,0,0,.08);
+            cursor:pointer;
+            transition:.25s;
+        }
+
+        .card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        }
+
+        .icon{
+            font-size:42px;
+            margin-bottom:14px;
+        }
+
+        .title{
+            font-size:16px;
+            font-weight:700;
+            margin-bottom:6px;
+        }
+
+        .desc{
+            font-size:13px;
+            color:var(--muted);
+        }
+
+        .card.emergency{
+            background:linear-gradient(135deg,#dc2626,#ef4444);
+            color:white;
+        }
+
+        .card.emergency .desc{
+            color:#fee2e2;
+        }
+
+        /* ===== FOOTER ===== */
+        footer{
+            text-align:center;
+            padding:20px;
+            font-size:12px;
+            color:var(--muted);
         }
     </style>
 </head>
 
 <body>
 
-<header id="txt-dashboard">
-    Patient Dashboard
+<header>
+    <div class="header-top">
+        <div>
+            <div class="header-title">Patient Dashboard</div>
+            <div class="header-sub">
+                Patient ID: <strong id="pid"></strong>
+            </div>
+        </div>
+
+        <!-- ✅ LOGOUT BUTTON -->
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 </header>
 
 <div class="container">
+    <div class="grid">
 
-    <div class="card" onclick="openHealthCard()">
-        <div class="icon">🪪</div>
-        <div class="title" id="txt-health-card">My Health Card</div>
+        <div class="card" onclick="openHealthCard()">
+            <div class="icon">🪪</div>
+            <div class="title">Health Card</div>
+            <div class="desc">View your digital health identity</div>
+        </div>
+
+        <div class="card" onclick="openRecords()">
+            <div class="icon">📄</div>
+            <div class="title">Medical Records</div>
+            <div class="desc">All visits, reports & prescriptions</div>
+        </div>
+
+        <div class="card" onclick="goDoctorVisits()">
+            <div class="icon">🧑‍⚕️</div>
+            <div class="title">Doctor Visits</div>
+            <div class="desc">Consultation history</div>
+        </div>
+
+        <div class="card emergency" onclick="openEmergency()">
+            <div class="icon">🚨</div>
+            <div class="title">Emergency</div>
+            <div class="desc">Send emergency alert immediately</div>
+        </div>
+
+        <div class="card" onclick="openProfile()">
+            <div class="icon">👤</div>
+            <div class="title">My Profile</div>
+            <div class="desc">Personal & identity details</div>
+        </div>
+
+        <div class="card" onclick="openLanguage()">
+            <div class="icon">🌐</div>
+            <div class="title">Language</div>
+            <div class="desc">Change application language</div>
+        </div>
+
+        <div class="card" onclick="openHelp()">
+            <div class="icon">📞</div>
+            <div class="title">Help & Support</div>
+            <div class="desc">Contact assistance & FAQs</div>
+        </div>
+
     </div>
-
-    <div class="card" onclick="openRecords()">
-        <div class="icon">📄</div>
-        <div class="title" id="txt-records">My Records</div>
-    </div>
-
-    <div class="card" onclick="go('doctor_visits.html')">
-        <div class="icon">🧑‍⚕️</div>
-        <div class="title" id="txt-doctor-visits">Doctor Visits</div>
-    </div>
-
-    <div class="card emergency" onclick="openEmergency()">
-        <div class="icon">🚨</div>
-        <div class="title" id="txt-emergency">Emergency</div>
-    </div>
-
-    <div class="card" onclick="openLanguage()">
-        <div class="icon">🌐</div>
-        <div class="title" id="txt-language">Language</div>
-    </div>
-
-    <div class="card" onclick="openProfile()">
-        <div class="icon">👤</div>
-        <div class="title" id="txt-profile">My Profile</div>
-    </div>
-
-    <div class="card" onclick="openHelp()">
-        <div class="icon">📞</div>
-        <div class="title" id="txt-help">Help</div>
-    </div>
-
 </div>
 
 <footer>
-    Digital Health Record System – Government of Kerala
+    Digital Health Record System • Government & Hospital Integrated Platform
 </footer>
 
-<!-- TRANSLATION SYSTEM -->
-<script src="translations.js"></script>
 <script>
-    applyLanguage();
+    document.getElementById("pid").innerText = patientId;
 
-    function go(page) {
-        window.location.href = page;
-    }
-
-    function openHealthCard() {
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/health-card", {
+    /* ===== LOGOUT USING BACKEND API ===== */
+    function logout(){
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/logout", {
+            method: "POST",
             headers: {
                 "Authorization": "Bearer " + token
             }
         })
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.json();
-        })
-        .then(data => {
-            localStorage.setItem("healthCardData", JSON.stringify(data));
-            window.location.href = "health_card.html";
-        })
-        .catch(() => {
-            alert("Session expired. Please login again.");
-            logout();
+        .finally(() => {
+            // Always clear frontend session
+            localStorage.clear();
+            window.location.replace("login.html");
         });
     }
 
-    function openProfile() {
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/profile", {
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("patientToken")
-            }
-        })
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.json();
-        })
-        .then(data => {
-            localStorage.setItem("patientProfileData", JSON.stringify(data));
-            window.location.href = "profile.html";
-        })
-        .catch(() => {
-            alert("Session expired. Please login again.");
-            logout();
-        });
+    /* ===== NAVIGATION ===== */
+    function openRecords(){
+        location.href=`medical_data.html?patient_id=${patientId}`;
     }
-
-    function openRecords() {
-        window.location.href = "medical_data.html";
+    function goDoctorVisits(){
+        location.href=`doctor_visits.html?patient_id=${patientId}`;
     }
-
-    function openEmergency() {
-        window.location.href = "emergency.html";
+    function openEmergency(){
+        location.href=`emergency.html?patient_id=${patientId}`;
     }
-
-    function openLanguage() {
-        window.location.href = "language.html";
+    function openProfile(){
+        location.href=`profile.html?patient_id=${patientId}`;
     }
-
-    function openHelp() {
-        window.location.href = "help.html";
+    function openHealthCard(){
+        location.href=`health_card.html?patient_id=${patientId}`;
+    }
+    function openLanguage(){
+        location.href="language.html";
+    }
+    function openHelp(){
+        location.href="help.html";
     }
 </script>
 

@@ -9,3 +9,4 @@ class PatientLoginSchema(Schema):
 class PatientLoginResponseSchema(Schema):
     message = fields.Str()
     access_token = fields.Str()
+    patient_id = fields.Str()

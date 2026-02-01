@@ -1,9 +1,9 @@
-from flask import abort, request
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..Database.MedicalRecords.mediacalRecordsFiles import MedicalRecordDatabase
-from ..Database.MedicalRecords.prescriptionDatabase import MedicalRecordFileDatabase
+from ..Database.MedicalRecords.prescriptionDatabase import MedicalRecordDatabase
+from ..Database.MedicalRecords.mediacalRecordsFiles import MedicalRecordFileDatabase
 from ..Schemas.MedicalRecordSchema.medicalRecords import PatientSuggestionsSchema
 from .check_file_extensions import allowed_file
 from marshmallow import ValidationError
@@ -24,25 +24,31 @@ class PatientSuggestions(MethodView):
     @jwt_required(locations=['headers'])
     def post(self):
         raw_data = request.form.to_dict()
+        print(raw_data)
         try:
             data = PatientSuggestionsSchema().load(raw_data)
+            print(data)
         except ValidationError as error:
             return {
                 "message": "Validation failed", "errors": error.messages}, 422
         from ..Config.cloudinary_config import cloudinary
         doctor_email = get_jwt_identity()
         patient_id = data['patient_id']
+        hospital_name = data['hospital_name']
+        department = data['department']
         diagnosis = data['diagnosis']
         prescription = data['prescription']
         notes = data['notes']
+        tests = data['tests']
+        report_category = data['report_category']
         report_types = data['report_type']
-        report_types_others = data['report_type_other']
         final_report_type = None
-        if report_types:
-            if report_types == 'other' and report_types_others:
-                final_report_type = report_types_others
+        if report_category:
+            if report_category == 'other' and report_types == 'other':
+                report_name = data['report_name']
+                final_report_type = report_name
             else:
-                final_report_type = report_types
+                final_report_type = report_category
         file = request.files.get('report_file')
         file_url = None
         if final_report_type and file and file.filename:
@@ -53,9 +59,11 @@ class PatientSuggestions(MethodView):
                                                        resource_type='auto')
             file_url = upload_result.get('secure_url')
 
-        response = self.medical_suggestion_db.insert_medical_data(doctor_email, patient_id, diagnosis, prescription,
-                                                                  notes)
-        if report_types is not None or report_types_others is not None and file is not None:
-            response = self.medical_files_db.insert_medical_record_file(patient_id, report_types, report_types_others,
-                                                                        file_url)
+        response = self.medical_suggestion_db.insert_medical_data(doctor_email, patient_id, hospital_name, department,
+                                                                  diagnosis,
+                                                                  prescription,
+                                                                  notes, tests)
+        if report_category is not None or report_types is not None and file is not None:
+            response = self.medical_files_db.insert_medical_record_file(patient_id, report_category, report_types,
+                                                                        file_url,report_name=None)
         return response

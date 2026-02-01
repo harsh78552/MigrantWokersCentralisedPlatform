@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const token = localStorage.getItem("doctorToken");
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+                headers: { "Authorization": "Bearer " + token }
+            }).then(res => {
+                if (!res.ok) logout();
+            }).catch(logout);
+        }
+
+        function logout(){
+            localStorage.removeItem("doctorToken");
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root{
+            --primary:#0f4c75;
+            --secondary:#3282b8;
+            --accent:#1b9aaa;
+            --bg:#f4f8fb;
+            --card:#ffffff;
+            --border:#dce6ef;
+            --text:#102a43;
+            --muted:#6b7c93;
+        }
+
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:"Segoe UI",system-ui,Arial;
+            background:var(--bg);
+            color:var(--text);
+        }
+
+        /* HEADER */
+        .header{
+            background:linear-gradient(135deg,var(--primary),var(--secondary));
+            color:white;
+            padding:22px 32px;
+            font-size:22px;
+            font-weight:800;
+            letter-spacing:.4px;
+        }
+
+        .container{
+            padding:32px;
+            max-width:1200px;
+            margin:auto;
+        }
+
+        /* GRID */
+        .reports-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+            gap:22px;
+        }
+
+        /* CARD */
+        .report-card{
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:18px;
+            padding:22px;
+            box-shadow:0 12px 28px rgba(16,42,67,.08);
+            transition:.25s;
+        }
+
+        .report-card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 18px 40px rgba(16,42,67,.12);
+        }
+
+        .badge{
+            display:inline-block;
+            background:#e6f1fb;
+            color:var(--secondary);
+            padding:4px 10px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            margin-bottom:10px;
+        }
+
+        .report-title{
+            font-size:17px;
+            font-weight:800;
+            margin-bottom:8px;
+        }
+
+        .report-meta{
+            font-size:13px;
+            color:var(--muted);
+            margin-bottom:18px;
+            line-height:1.5;
+        }
+
+        .actions{
+            display:flex;
+            justify-content:flex-end;
+        }
+
+        .view-btn{
+            background:linear-gradient(135deg,var(--accent),var(--secondary));
+            border:none;
+            color:white;
+            padding:10px 20px;
+            border-radius:999px;
+            cursor:pointer;
+            font-weight:700;
+            letter-spacing:.3px;
+            transition:.25s;
+        }
+
+        .view-btn:hover{
+            opacity:.9;
+            transform:scale(1.03);
+        }
+
+        /* EMPTY */
+        .empty{
+            background:white;
+            padding:40px;
+            border-radius:20px;
+            text-align:center;
+            color:var(--muted);
+            border:1px dashed var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">Medical Reports</div>
+
+<div class="container">
+    <div id="reports" class="reports-grid"></div>
+</div>
+
+<script>
+    const patientId = new URLSearchParams(location.search).get("patient_id");
+    const container = document.getElementById("reports");
+
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+        headers:{ "Authorization":"Bearer "+token }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="empty">
+                    No medical reports available for this patient.
+                </div>
+            `;
+            return;
+        }
+
+        data.forEach(r => {
+            const reportName = r.report_name || r.report_types || "Medical Report";
+            const createdAt = r.created_at ? r.created_at.split(".")[0] : "N/A";
+
+            container.innerHTML += `
+                <div class="report-card">
+                    <span class="badge">${r.report_category || "Report"}</span>
+                    <div class="report-title">${reportName}</div>
+                    <div class="report-meta">
+                        Created on: ${createdAt}
+                    </div>
+                    <div class="actions">
+                        <button class="view-btn"
+                            onclick="window.open('${r.file_url}','_blank')">
+                            View Report
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    })
+    .catch(()=>{
+        container.innerHTML = `
+            <div class="empty">
+                Unable to load reports. Please try again later.
+            </div>
+        `;
+    });
+</script>
+
+</body>
+</html>

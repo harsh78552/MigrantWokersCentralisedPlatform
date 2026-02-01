@@ -30,7 +30,7 @@ class DoctorAcceptEmergency(MethodView):
         doctor_data = self.doctor_db.find_doctor(email)
         subject = "Doctor Assigned to Your Emergency"
         body = f"""
-        Dear {patient_data['name']},
+        Dear {patient_data['full_name']},
             Dr.{doctor_data['full_name']} has been assigned to your emergency.
             Help is on the way. Please stay calm..... 
             Your Emergency_id:{emergency_id}

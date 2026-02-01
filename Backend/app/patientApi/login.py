@@ -29,9 +29,11 @@ class PatientLogin(MethodView):
                 access_token = create_access_token(identity=email,
                                                    additional_claims=({'role': patient_data['role']}),
                                                    expires_delta=timedelta(hours=5))
+
                 return {
                     "message": "Patient login successfully.",
-                    "access_token": access_token
+                    "access_token": access_token,
+                    "patient_id": patient_data['patient_id']
                 }
             else:
                 abort(403, message='not authorised')

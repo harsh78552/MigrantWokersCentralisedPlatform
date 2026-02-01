@@ -58,5 +58,4 @@ class PatientDatabase:
     def find_patient_through_patient_id(self, patient_id):
         patient_data = self.collection.find_one({'patient_id': patient_id})
         patient_data['_id'] = str(patient_data.get('_id'))
-        data = {'email': patient_data['email'], 'name': patient_data['full_name']}
-        return data
+        return patient_data

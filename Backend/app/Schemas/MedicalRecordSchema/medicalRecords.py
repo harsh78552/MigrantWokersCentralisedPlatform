@@ -6,6 +6,11 @@ class PatientSuggestionsSchema(Schema):
         required=True,
         validate=validate.Length(min=3)
     )
+    hospital_name = fields.String(
+        required=True,
+        validate=validate.Length(min=3)
+    )
+    department = fields.String(required=True)
 
     diagnosis = fields.String(
         required=True,
@@ -15,7 +20,9 @@ class PatientSuggestionsSchema(Schema):
     prescription = fields.String(required=False)
 
     notes = fields.String(required=False)
+    tests = fields.String(required=False)
+
+    report_category = fields.String(required=False)
 
     report_type = fields.String(required=False)
-
-    report_type_other = fields.String(required=False)
+    report_name = fields.String(required=False)

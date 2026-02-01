@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Records</title>
+
+    <script>
+        const token = localStorage.getItem("doctorToken");
+
+        if (!token) {
+            window.location.replace("login.html");
+        } else {
+            fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+                headers: { "Authorization": "Bearer " + token }
+            })
+            .then(res => {
+                if (!res.ok) handleLogout();
+            })
+            .catch(() => handleLogout());
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("doctorToken");
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root{
+            --bg:#f4f7fb;
+            --card:#ffffff;
+            --primary:#2563eb;
+            --border:#e5e7eb;
+            --text:#0f172a;
+            --muted:#64748b;
+            --dept:#0ea5e9;
+        }
+
+        body{
+            margin:0;
+            font-family:Inter,Segoe UI,Arial,sans-serif;
+            background:linear-gradient(180deg,#f8fafc,#eef2f7);
+            padding:32px;
+            color:var(--text);
+        }
+
+        h2{
+            margin-bottom:28px;
+            font-size:24px;
+            font-weight:900;
+        }
+
+        /* Card */
+        .record-card{
+            background:var(--card);
+            border-radius:22px;
+            padding:26px;
+            margin-bottom:24px;
+            box-shadow:0 18px 40px rgba(0,0,0,.08);
+            border-left:6px solid var(--primary);
+        }
+
+        /* Header */
+        .record-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            margin-bottom:20px;
+            gap:20px;
+        }
+
+        .hospital{
+            font-size:19px;
+            font-weight:900;
+        }
+
+        .department{
+            margin-top:6px;
+            display:inline-block;
+            background:#e0f2fe;
+            color:#075985;
+            padding:6px 12px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:800;
+        }
+
+        /* Date badge */
+        .date-box{
+            background:#eef2ff;
+            color:#1e3a8a;
+            padding:8px 14px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:800;
+            display:flex;
+            gap:10px;
+            align-items:center;
+            white-space:nowrap;
+        }
+
+        /* Sections */
+        .section{
+            margin-top:18px;
+        }
+
+        .label{
+            font-weight:800;
+            color:#1e293b;
+            margin-bottom:6px;
+            font-size:14px;
+        }
+
+        .value{
+            white-space:pre-line;
+            background:#f9fafb;
+            padding:14px 16px;
+            border-radius:14px;
+            border:1px solid var(--border);
+            font-size:14px;
+            line-height:1.6;
+        }
+
+        .empty{
+            color:#94a3b8;
+            font-style:italic;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Medical Records</h2>
+
+<div id="records"></div>
+
+<script>
+    const patientId = new URLSearchParams(window.location.search).get("patient_id");
+
+    function formatDateTime(raw){
+        const d = new Date(raw);
+        const date = d.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+        const time = d.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+        return { date, time };
+    }
+
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/record?patient_id=${patientId}`,{
+        headers:{ Authorization:"Bearer "+token }
+    })
+    .then(res => res.json())
+    .then(records => {
+        const container = document.getElementById("records");
+
+        if(!Array.isArray(records) || records.length === 0){
+            container.innerHTML = "<p>No medical records found.</p>";
+            return;
+        }
+
+        records.forEach(r => {
+            const rawDate = r.created_at || r.date;
+            const { date, time } = rawDate
+                ? formatDateTime(rawDate)
+                : { date: "N/A", time: "" };
+
+            container.innerHTML += `
+            <div class="record-card">
+
+                <div class="record-header">
+                    <div>
+                        <div class="hospital">${r.hospital_name || "Unknown Hospital"}</div>
+                        <div class="department">
+                            ${r.department || "Department not specified"}
+                        </div>
+                    </div>
+
+                    <div class="date-box">
+                        <span>${date}</span>
+                        <span>${time}</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="label">Diagnosis</div>
+                    <div class="value">
+                        ${r.diagnosis || "<span class='empty'>Not mentioned</span>"}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="label">Tests / Investigations</div>
+                    <div class="value">
+                        ${r.tests || "<span class='empty'>No tests advised</span>"}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="label">Prescription</div>
+                    <div class="value">
+                        ${r.prescription || "<span class='empty'>No medicines prescribed</span>"}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="label">Doctor Notes</div>
+                    <div class="value">
+                        ${r.doctor_notes || "<span class='empty'>No additional notes</span>"}
+                    </div>
+                </div>
+
+            </div>`;
+        });
+    })
+    .catch(() => {
+        document.getElementById("records").innerHTML =
+            "<p>Failed to load medical records.</p>";
+    });
+</script>
+
+</body>
+</html>

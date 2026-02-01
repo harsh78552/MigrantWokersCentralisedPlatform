@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Record Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const token = localStorage.getItem("patientToken");
+        const params = new URLSearchParams(window.location.search);
+        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
+
+        if (!token || !patientId) {
+            window.location.replace("login.html");
+        }
+
+        localStorage.setItem("patientId", patientId);
+
+
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => { if (!res.ok) forceLogout(); })
+        .catch(() => forceLogout());
+
+        window.history.pushState(null,null,location.href);
+        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
+
+        function forceLogout(){
+            localStorage.clear();
+            window.location.replace("login.html");
+        }
+    </script>
+
+    <style>
+        :root{
+            --primary:#0b5ed7;
+            --primary-dark:#084298;
+            --bg:#f4f7fb;
+            --card:#ffffff;
+            --border:#e5e7eb;
+            --text:#1e293b;
+            --muted:#64748b;
+        }
+
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:"Segoe UI", Arial, sans-serif;
+            background:var(--bg);
+            color:var(--text);
+        }
+
+        /* ===== HEADER ===== */
+        header{
+            background:linear-gradient(135deg,#0b5ed7,#2563eb);
+            color:white;
+            padding:22px 28px;
+        }
+
+        header h1{
+            margin:0;
+            font-size:22px;
+        }
+
+        header .sub{
+            font-size:13px;
+            opacity:.9;
+            margin-top:4px;
+        }
+
+        /* ===== CARD SECTIONS ===== */
+        .section{
+            max-width:950px;
+            margin:26px auto;
+            background:var(--card);
+            padding:26px 30px;
+            border-radius:12px;
+            box-shadow:0 10px 25px rgba(0,0,0,.08);
+        }
+
+        .title{
+            font-size:18px;
+            font-weight:700;
+            margin-bottom:18px;
+            color:var(--primary-dark);
+            border-left:4px solid var(--primary);
+            padding-left:10px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px 30px;
+        }
+
+        .row{
+            margin-bottom:10px;
+        }
+
+        .label{
+            font-size:13px;
+            font-weight:700;
+            color:var(--muted);
+            text-transform:uppercase;
+            letter-spacing:.4px;
+        }
+
+        .value{
+            margin-top:6px;
+            line-height:1.6;
+            font-size:15px;
+            background:#f8fafc;
+            padding:10px 12px;
+            border-radius:6px;
+            border:1px solid var(--border);
+        }
+
+        /* ===== FULL WIDTH ROW ===== */
+        .full{
+            grid-column:1 / -1;
+        }
+
+        /* ===== FOOTER ACTIONS ===== */
+        .actions{
+            max-width:950px;
+            margin:0 auto 40px;
+            display:flex;
+            justify-content:flex-end;
+            gap:12px;
+        }
+
+        .btn{
+            padding:10px 18px;
+            border:none;
+            border-radius:6px;
+            font-weight:600;
+            cursor:pointer;
+            font-size:14px;
+        }
+
+        .btn.back{
+            background:#e5e7eb;
+            color:#1e293b;
+        }
+
+        .btn.print{
+            background:var(--primary);
+            color:white;
+        }
+
+        .btn.print:hover{
+            background:var(--primary-dark);
+        }
+
+        @media(max-width:768px){
+            .grid{
+                grid-template-columns:1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Medical Record Details</h1>
+    <div class="sub">Patient Clinical Report</div>
+</header>
+
+<!-- HOSPITAL INFO -->
+<div class="section">
+    <div class="title">Hospital Information</div>
+
+    <div class="grid">
+        <div class="row">
+            <div class="label">Hospital Name</div>
+            <div class="value" id="hospital"></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Department</div>
+            <div class="value" id="department"></div>
+        </div>
+
+        <div class="row full">
+            <div class="label">Visit Date & Time</div>
+            <div class="value" id="date"></div>
+        </div>
+    </div>
+</div>
+
+<!-- CLINICAL DETAILS -->
+<div class="section">
+    <div class="title">Clinical Details</div>
+
+    <div class="grid">
+        <div class="row full">
+            <div class="label">Diagnosis</div>
+            <div class="value" id="diagnosis"></div>
+        </div>
+
+        <div class="row full">
+            <div class="label">Prescription</div>
+            <div class="value" id="prescription"></div>
+        </div>
+
+        <div class="row full">
+            <div class="label">Doctor Notes</div>
+            <div class="value" id="notes"></div>
+        </div>
+
+        <div class="row full">
+            <div class="label">Tests Advised</div>
+            <div class="value" id="tests"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+    <button class="btn back" onclick="history.back()">Back</button>
+    <button class="btn print" onclick="window.print()">Print</button>
+</div>
+
+<script>
+    document.getElementById("hospital").innerText = record.hospital_name || "-";
+    document.getElementById("department").innerText = record.department || "-";
+    document.getElementById("date").innerText =
+        new Date(record.date || record.created_at).toLocaleString();
+
+    document.getElementById("diagnosis").innerText = record.diagnosis || "-";
+    document.getElementById("prescription").innerText = record.prescription || "-";
+    document.getElementById("notes").innerText = record.doctor_notes || "-";
+    document.getElementById("tests").innerText = record.tests || "-";
+</script>
+
+</body>
+</html>

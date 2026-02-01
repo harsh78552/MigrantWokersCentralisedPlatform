@@ -14,37 +14,35 @@
         } else {
             fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
                 headers: { "Authorization": "Bearer " + token }
-            }).then(res => {
-                if (!res.ok) logout();
-            }).catch(() => logout());
+            })
+            .then(res => { if (!res.ok) logoutDirect(); })
+            .catch(() => logoutDirect());
         }
 
-        function logout() {
-            localStorage.clear();
+        function logoutDirect(){
+            localStorage.removeItem("doctorToken");
             window.location.replace("login.html");
         }
     </script>
 
     <style>
         :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-
-            --blue: #2563eb;
-            --green: #16a34a;
-            --purple: #7c3aed;
-            --orange: #f59e0b;
-            --red: #dc2626;
-            --dark: #020617;
+            --bg:#f8fafc;
+            --card:#ffffff;
+            --text:#0f172a;
+            --muted:#64748b;
+            --blue:#2563eb;
+            --green:#16a34a;
+            --purple:#7c3aed;
+            --orange:#f59e0b;
+            --red:#dc2626;
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: "Inter", Arial, sans-serif;
+            font-family: Inter, Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
         }
@@ -62,7 +60,6 @@
         .navbar h2 {
             margin: 0;
             font-size: 22px;
-            font-weight: 700;
         }
 
         .nav-buttons button {
@@ -72,13 +69,16 @@
             border-radius: 999px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 600;
             color: white;
-            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform .15s ease, opacity .15s ease;
         }
 
         .nav-buttons button:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .profile-btn   { background: var(--blue); }
@@ -88,81 +88,42 @@
         .emergency-btn { background: var(--red); }
         .logout-btn    { background: #334155; }
 
+        /* Emergency badge */
+        .badge {
+            background: #ffffff;
+            color: var(--red);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
         /* MAIN */
         .container {
             max-width: 1200px;
             margin: auto;
-            padding: 40px 24px;
+            padding: 48px 24px;
         }
 
         /* WELCOME */
-        .welcome {
+        .welcome-box {
             background: var(--card);
-            border-radius: 22px;
-            padding: 36px;
-            box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+            max-width: 820px;
         }
 
-        .welcome h3 {
-            margin: 0 0 8px;
+        .welcome-box h3 {
+            margin-top: 0;
             font-size: 26px;
         }
 
-        .welcome p {
+        .welcome-box p {
             color: var(--muted);
-            max-width: 700px;
-            line-height: 1.7;
-        }
-
-        /* QUICK ACTIONS */
-        .actions {
-            margin-top: 36px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-        }
-
-        .action-card {
-            background: white;
-            border-radius: 18px;
-            padding: 24px;
-            cursor: pointer;
-            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 6px solid transparent;
-        }
-
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-        }
-
-        .action-card h4 {
-            margin: 0 0 8px;
-            font-size: 18px;
-        }
-
-        .action-card p {
-            margin: 0;
-            font-size: 14px;
-            color: var(--muted);
-            line-height: 1.5;
-        }
-
-        .action-card.emergency {
-            border-left-color: var(--red);
-        }
-
-        .action-card.patients {
-            border-left-color: var(--green);
-        }
-
-        .action-card.records {
-            border-left-color: var(--purple);
-        }
-
-        .action-card.appointments {
-            border-left-color: var(--orange);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -173,51 +134,27 @@
 <div class="navbar">
     <h2>Doctor Dashboard</h2>
     <div class="nav-buttons">
-        <button class="profile-btn" onclick="goProfile()">Profile</button>
-        <button class="patient-btn" onclick="goPatients()">Patients</button>
-        <button class="record-btn" onclick="goAddRecord()">Add Record</button>
         <button class="appoint-btn" onclick="goAppointments()">Appointments</button>
-        <button class="emergency-btn" onclick="goEmergency()">🚨 Emergencies</button>
+        <button class="record-btn" onclick="goAddRecord()">Add Record</button>
+
+        <button class="emergency-btn" onclick="goEmergency()">
+            🚨 Emergencies
+        </button>
+
+        <button class="patient-btn" onclick="goPatients()">Patients</button>
+        <button class="profile-btn" onclick="goProfile()">Profile</button>
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 </div>
 
 <!-- MAIN -->
 <div class="container">
-
-    <div class="welcome">
+    <div class="welcome-box">
         <h3>Welcome Doctor 👨‍⚕️</h3>
-        <p>
-            This dashboard helps you manage patient care efficiently.
-            Access emergencies, patient records, appointments, and medical
-            documentation from one secure place.
-        </p>
-
-        <div class="actions">
-
-            <div class="action-card emergency" onclick="goEmergency()">
-                <h4>🚨 Emergency Dashboard</h4>
-                <p>Respond to active emergencies and critical cases instantly.</p>
-            </div>
-
-            <div class="action-card patients" onclick="goPatients()">
-                <h4>🧑‍🤝‍🧑 Patient Management</h4>
-                <p>View assigned patients and their medical histories.</p>
-            </div>
-
-            <div class="action-card appointments" onclick="goAppointments()">
-                <h4>📅 Appointments</h4>
-                <p>Check today’s and upcoming consultation schedules.</p>
-            </div>
-
-            <div class="action-card records" onclick="goAddRecord()">
-                <h4>📝 Medical Records</h4>
-                <p>Add diagnosis notes, prescriptions, and treatment plans.</p>
-            </div>
-
-        </div>
+        <p>Manage patients, emergencies, and medical records securely.</p>
+        <p>View patient histories, add diagnoses and prescriptions, and respond quickly to emergency cases.</p>
+        <p>Your dashboard is designed to save time and support better clinical decisions.</p>
     </div>
-
 </div>
 
 <script>
@@ -226,7 +163,7 @@
     }
 
     function goPatients() {
-        window.location.href = "patients.html";
+        window.location.href = "patient.html";
     }
 
     function goAddRecord() {
@@ -239,6 +176,18 @@
 
     function goEmergency() {
         window.location.href = "emergency.html";
+    }
+
+    function logout() {
+        if (!confirm("Are you sure you want to logout?")) return;
+
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor-logout", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + token }
+        }).finally(() => {
+            localStorage.removeItem("doctorToken");
+            window.location.replace("login.html");
+        });
     }
 </script>
 

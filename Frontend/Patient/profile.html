@@ -6,10 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script>
-        const profileData = localStorage.getItem("patientProfileData");
+        const token = localStorage.getItem("patientToken");
+        const params = new URLSearchParams(window.location.search);
+        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
 
-        if (!profileData) {
-            window.location.replace("main_page.html");
+        if (!token || !patientId) {
+            window.location.replace("login.html");
+        }
+
+        localStorage.setItem("patientId", patientId);
+
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => { if (!res.ok) forceLogout(); })
+        .catch(() => forceLogout());
+
+        window.history.pushState(null,null,location.href);
+        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
+
+        function forceLogout(){
+            localStorage.clear();
+            window.location.replace("login.html");
         }
     </script>
 
