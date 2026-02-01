@@ -1,5 +1,5 @@
 from flask.views import MethodView
-from flask_jwt_extended import create_access_token, set_access_cookies
+from flask_jwt_extended import create_access_token
 from flask_smorest import Blueprint, abort
 from ..Database.Doctor.doctors_data import DoctorDatabase
 from ..Schemas.DoctorSchema.DoctorLoginSchema import DoctorLogin,DoctorLoginResponseSchema
