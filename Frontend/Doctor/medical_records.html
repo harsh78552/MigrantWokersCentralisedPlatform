@@ -152,7 +152,7 @@
         return { date, time };
     }
 
-    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com//doctor/patient/medical/record?patient_id=${patientId}`,{
         headers:{ Authorization:"Bearer "+token }
     })
     .then(res => res.json())
