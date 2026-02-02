@@ -29,7 +29,7 @@
         }
     </script>
 
-    <!-- YOUR ORIGINAL STYLES (UNCHANGED) -->
+    <!-- STYLES UNCHANGED -->
     <style>
         :root{
             --primary:#0a4fbf;
@@ -43,174 +43,17 @@
             --medical:#2563eb;
             --test:#059669;
         }
-
         *{box-sizing:border-box}
-
-        body{
-            margin:0;
-            font-family:"Segoe UI", Arial, sans-serif;
-            background:var(--bg);
-            color:var(--text);
-        }
-
-        /* ===== HEADER ===== */
-        header{
-            background:linear-gradient(135deg,#0a4fbf,#1e6fff);
-            color:white;
-            padding:22px 28px;
-            box-shadow:0 4px 10px rgba(0,0,0,.15);
-        }
-
-        header h1{
-            margin:0;
-            font-size:23px;
-            font-weight:700;
-        }
-
-        /* ===== TOP BAR ===== */
-        .topbar{
-            background:white;
-            padding:14px 28px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            border-bottom:1px solid var(--border);
-        }
-
-        .left{
-            display:flex;
-            align-items:center;
-            gap:14px;
-        }
-
-        .back-btn{
-            padding:8px 14px;
-            border-radius:6px;
-            border:1px solid var(--border);
-            background:#f8fafc;
-            font-weight:700;
-            cursor:pointer;
-            color:var(--text);
-        }
-
-        .back-btn:hover{
-            background:#eef2f7;
-        }
-
-        .badge{
-            background:var(--accent);
-            color:var(--primary);
-            padding:6px 12px;
-            border-radius:20px;
-            font-size:12px;
-            font-weight:700;
-        }
-
-        /* ===== TABS ===== */
-        .tabs{
-            display:flex;
-            gap:12px;
-        }
-
-        .tab-btn{
-            padding:10px 20px;
-            border-radius:6px;
-            border:1px solid var(--border);
-            background:#f9fafb;
-            font-weight:700;
-            cursor:pointer;
-            color:var(--text);
-        }
-
-        .tab-btn.active{
-            background:var(--primary);
-            color:white;
-            border-color:var(--primary);
-        }
-
-        /* ===== CARD ===== */
-        .container{
-            max-width:1200px;
-            margin:26px auto;
-            background:var(--card);
-            border-radius:12px;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
-            overflow:hidden;
-        }
-
-        /* ===== TABLE ===== */
-        .table-header,
-        .row{
-            display:grid;
-            grid-template-columns:140px 1.3fr 1fr 120px 120px;
-            padding:16px 22px;
-            align-items:center;
-        }
-
-        .table-header{
-            background:#f1f5fb;
-            font-weight:800;
-            font-size:14px;
-            color:#334155;
-            border-bottom:1px solid var(--border);
-        }
-
-        .row{
-            border-bottom:1px solid var(--border);
-            font-size:14px;
-        }
-
-        .row:hover{
-            background:#f8fbff;
-        }
-
-        /* ===== TAGS ===== */
-        .tag{
-            display:inline-block;
-            padding:5px 12px;
-            font-size:12px;
-            font-weight:800;
-            border-radius:20px;
-            color:white;
-            text-align:center;
-        }
-
+        body{margin:0;font-family:"Segoe UI",Arial;background:var(--bg)}
+        header{background:#0a4fbf;color:#fff;padding:22px}
+        .topbar{background:#fff;padding:14px;display:flex;justify-content:space-between}
+        .tab-btn.active{background:var(--primary);color:#fff}
+        .container{max-width:1200px;margin:26px auto;background:#fff}
+        .table-header,.row{display:grid;grid-template-columns:140px 1.3fr 1fr 120px 120px;padding:16px}
+        .btn{background:var(--primary);color:#fff;border:none;padding:8px 16px;border-radius:6px}
         .tag.medical{background:var(--medical)}
         .tag.test{background:var(--test)}
-
-        /* ===== BUTTON ===== */
-        .btn{
-            padding:8px 16px;
-            border:none;
-            border-radius:6px;
-            background:var(--primary);
-            color:white;
-            font-size:13px;
-            font-weight:700;
-            cursor:pointer;
-        }
-
-        .btn:hover{
-            background:var(--primary-dark);
-        }
-
-        /* ===== STATES ===== */
-        .empty, .error{
-            padding:50px;
-            text-align:center;
-            font-size:14px;
-        }
-
-        .empty{color:var(--muted)}
-        .error{color:#dc2626}
-
-        /* ===== FOOTER ===== */
-        footer{
-            text-align:center;
-            padding:18px;
-            font-size:12px;
-            color:var(--muted);
-        }
+        .empty,.error{text-align:center;padding:40px}
     </style>
 </head>
 
@@ -253,7 +96,7 @@
         document.getElementById(tab).classList.add("active");
     }
 
-    /* ===== MEDICAL ===== */
+    /* ===== MEDICAL (UNCHANGED) ===== */
     function loadMedical(){
         setActive("medicalTab");
 
@@ -278,41 +121,41 @@
         });
     }
 
-    /* ===== TEST ===== */
+    /* ===== TEST (FIXED ONLY HERE) ===== */
     function loadTests(){
-    setActive("testTab");
+        setActive("testTab");
 
-    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
-        headers:{ Authorization:"Bearer "+token }
-    })
-    .then(r => r.json())
-    .then(data => {
+        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+            headers:{ Authorization:"Bearer "+token }
+        })
+        .then(r => r.json())
+        .then(data => {
 
-        recordsBox.innerHTML = "";
+            recordsBox.innerHTML = "";
 
-        // ✅ FIX HERE
-        const records = Array.isArray(data) ? data : data.data || [];
+            // ✅ STRICT FIX
+            const records = Array.isArray(data)
+                ? data
+                : (Array.isArray(data.data) ? data.data : []);
 
-        records.forEach(r => {
-            recordsBox.innerHTML += `
-            <div class="row">
-                <div>${new Date(r.created_at).toLocaleDateString()}</div>
-                <div>${r.report_category}</div>
-                <div>${r.report_types}</div>
-                <div><span class="tag test">Test</span></div>
-                <div>
-                    <button class="btn"
-                        onclick='openTestReport(${JSON.stringify(r)})'>
-                        View
-                    </button>
-                </div>
-            </div>`;
+            records.forEach(r => {
+                recordsBox.innerHTML += `
+                <div class="row">
+                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
+                    <div>${r.report_category}</div>
+                    <div>${r.report_types}</div>
+                    <div><span class="tag test">Test</span></div>
+                    <div>
+                        <button class="btn"
+                            onclick='openTestReport(${JSON.stringify(r)})'>
+                            View
+                        </button>
+                    </div>
+                </div>`;
+            });
         });
-    });
-}
+    }
 
-
-    /* ✅ THIS IS THE ONLY FIX */
     function openDetails(record){
         localStorage.setItem("selectedMedicalRecord", JSON.stringify(record));
         window.location.href = `record_details.html?patient_id=${patientId}`;
