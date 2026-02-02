@@ -10,8 +10,8 @@ def configure_app(app):
     app.config['OPENAPI_SWAGGER_UI_PATH'] = '/'
     app.config['OPENAPI_SWAGGER_UI_URL'] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-    app.config['JWT_SECRET_KEY'] =os.getenv('JWT_SECRET_KEY')
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config['JWT_SECRET_KEY'] ="harsh8926466446jhgsfblsgwogw4lb"
+    app.config['SECRET_KEY'] = "HARSH79565hergitgbslvwfcbiew"
 
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config['JWT_HEADER_NAME'] = 'Authorization'

@@ -5,7 +5,7 @@
     <title>Emergency SOS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- AUTH CHECK -->
+    <!-- AUTH CHECK (UNCHANGED) -->
     <script>
         const token = localStorage.getItem("patientToken");
         const params = new URLSearchParams(window.location.search);
@@ -14,16 +14,13 @@
         if (!token || !patientId) {
             window.location.replace("login.html");
         }
-
         localStorage.setItem("patientId", patientId);
-
 
         fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
             headers: { "Authorization": "Bearer " + token }
         })
         .then(res => { if (!res.ok) forceLogout(); })
         .catch(() => forceLogout());
-
 
         window.history.pushState(null,null,location.href);
         window.onpopstate = ()=>window.history.pushState(null,null,location.href);
@@ -35,121 +32,149 @@
     </script>
 
     <style>
-        :root {
-            --red: #ef4444;
-            --dark-red: #b91c1c;
-            --green: #22c55e;
-            --blue: #2563eb;
-            --bg: linear-gradient(135deg, #eef2ff, #f8fafc);
-            --text: #111827;
+        :root{
+            --red:#ef4444;
+            --dark-red:#b91c1c;
+            --green:#22c55e;
+            --blue:#2563eb;
+            --bg:linear-gradient(135deg,#eef2ff,#f8fafc);
+            --text:#111827;
         }
 
-        * { box-sizing: border-box; }
+        *{box-sizing:border-box}
 
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: var(--bg);
-            font-family: "Inter", Arial, sans-serif;
+        body{
+            margin:0;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:var(--bg);
+            font-family:system-ui,Arial;
+            padding:16px;
         }
 
-        .card {
-            background: rgba(255,255,255,0.95);
-            width: 92%;
-            max-width: 420px;
-            padding: 30px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+        /* WRAPPER FOR LARGE SCREENS */
+        .wrapper{
+            width:100%;
+            max-width:460px;
         }
 
-        .icon {
-            width: 90px;
-            height: 90px;
-            background: var(--red);
-            color: white;
-            font-size: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            animation: pulse 2s infinite;
+        /* CARD */
+        .card{
+            background:rgba(255,255,255,0.96);
+            padding:32px 26px;
+            border-radius:26px;
+            text-align:center;
+            box-shadow:0 30px 70px rgba(0,0,0,0.15);
         }
 
-        h2 { margin: 18px 0 6px; }
-        .sub { font-size: 14px; color: #6b7280; margin-bottom: 26px; }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            font-size: 18px;
-            border: none;
-            border-radius: 999px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 12px;
+        /* ICON */
+        .icon{
+            width:92px;
+            height:92px;
+            background:var(--red);
+            color:white;
+            font-size:42px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:auto;
+            animation:pulse 2s infinite;
         }
 
-        .normal { background: var(--green); }
-        .critical { background: var(--red); }
-
-        .btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
+        h2{
+            margin:20px 0 6px;
+            font-size:22px;
+        }
+        .sub{
+            font-size:14px;
+            color:#6b7280;
+            margin-bottom:28px;
         }
 
-        .status {
-            margin-top: 16px;
-            font-size: 15px;
-            font-weight: 600;
-            min-height: 24px;
+        /* BUTTONS */
+        .btn{
+            width:100%;
+            padding:18px;
+            font-size:18px;
+            border:none;
+            border-radius:999px;
+            color:white;
+            font-weight:600;
+            cursor:pointer;
+            margin-bottom:14px;
         }
 
-        .info { color: var(--blue); }
-        .success { color: var(--green); }
-        .error { color: var(--red); }
+        .normal{background:var(--green)}
+        .critical{background:var(--red)}
 
-        .loader {
-            width: 18px;
-            height: 18px;
-            border: 3px solid #e5e7eb;
-            border-top: 3px solid var(--blue);
-            border-radius: 50%;
-            display: inline-block;
-            animation: spin 1s linear infinite;
-            margin-right: 6px;
-            vertical-align: middle;
+        .btn:disabled{
+            background:#9ca3af;
+            cursor:not-allowed;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
-            70% { box-shadow: 0 0 0 20px rgba(239,68,68,0); }
-            100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+        /* STATUS */
+        .status{
+            margin-top:16px;
+            font-size:15px;
+            font-weight:600;
+            min-height:24px;
+        }
+
+        .info{color:var(--blue)}
+        .success{color:var(--green)}
+        .error{color:var(--red)}
+
+        /* LOADER */
+        .loader{
+            width:18px;
+            height:18px;
+            border:3px solid #e5e7eb;
+            border-top:3px solid var(--blue);
+            border-radius:50%;
+            display:inline-block;
+            animation:spin 1s linear infinite;
+            margin-right:6px;
+            vertical-align:middle;
+        }
+
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes pulse{
+            0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}
+            70%{box-shadow:0 0 0 22px rgba(239,68,68,0)}
+            100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}
+        }
+
+        /* DESKTOP ENHANCEMENT */
+        @media(min-width:768px){
+            .card{
+                padding:38px 34px;
+            }
+            h2{font-size:24px}
         }
     </style>
 </head>
 
 <body>
 
-<div class="card">
-    <div class="icon">🚨</div>
-    <h2>Emergency SOS</h2>
-    <p class="sub">Tap only in serious medical emergencies</p>
+<div class="wrapper">
+    <div class="card">
 
-    <!-- TWO BUTTONS -->
-    <button id="normalBtn" class="btn normal">🟢 Normal Emergency</button>
-    <button id="criticalBtn" class="btn critical">🔴 Critical Emergency</button>
+        <div class="icon">🚨</div>
+        <h2>Emergency SOS</h2>
+        <p class="sub">Use only for serious medical emergencies</p>
 
-    <!-- MESSAGE FROM BACKEND -->
-    <div id="status" class="status"></div>
+        <button id="normalBtn" class="btn normal">🟢 Normal Emergency</button>
+        <button id="criticalBtn" class="btn critical">🔴 Critical Emergency</button>
+
+        <div id="status" class="status"></div>
+
+    </div>
 </div>
 
+<!-- LOGIC UNCHANGED -->
 <script>
     const statusText = document.getElementById("status");
     const normalBtn = document.getElementById("normalBtn");
@@ -158,7 +183,7 @@
     normalBtn.onclick = () => startEmergency("normal");
     criticalBtn.onclick = () => startEmergency("critical");
 
-    function startEmergency(severity) {
+    function startEmergency(severity){
         normalBtn.disabled = true;
         criticalBtn.disabled = true;
 
@@ -168,48 +193,42 @@
         navigator.geolocation.getCurrentPosition(
             pos => sendEmergency(pos, severity),
             err => {
-                // browser-generated message (only unavoidable case)
                 statusText.className = "status error";
                 statusText.innerText = err.message;
                 normalBtn.disabled = false;
                 criticalBtn.disabled = false;
             },
-            { enableHighAccuracy: true, timeout: 15000 }
+            { enableHighAccuracy:true, timeout:15000 }
         );
     }
 
-    function sendEmergency(position, severity) {
+    function sendEmergency(position, severity){
         const payload = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
             timestamp: new Date().toISOString(),
-            severity: severity
+            severity
         };
 
-        // developer debug
-        console.log("Emergency payload:", payload);
-
-<!--        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/emergency", {-->
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/emergency", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("patientToken")
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/patient/emergency",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer "+localStorage.getItem("patientToken")
             },
-            body: JSON.stringify(payload)
+            body:JSON.stringify(payload)
         })
-        .then(async res => {
+        .then(async res=>{
             const data = await res.json();
-            if (!res.ok) throw data;
+            if(!res.ok) throw data;
             return data;
         })
-        .then(data => {
-            // ✅ ONLY backend message shown
+        .then(data=>{
             statusText.className = "status success";
             statusText.innerText = data.message;
         })
-        .catch(err => {
+        .catch(err=>{
             statusText.className = "status error";
             statusText.innerText = err.message;
             normalBtn.disabled = false;
