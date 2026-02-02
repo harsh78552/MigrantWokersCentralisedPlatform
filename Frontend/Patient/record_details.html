@@ -5,54 +5,80 @@
     <title>Medical Record Details</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script>
-        const token = localStorage.getItem("patientToken");
-        const params = new URLSearchParams(window.location.search);
-        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
-
-        if (!token || !patientId) {
-            window.location.replace("login.html");
-        }
-
-        localStorage.setItem("patientId", patientId);
-
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-            headers: { "Authorization": "Bearer " + token }
-        })
-        .then(res => { if (!res.ok) forceLogout(); })
-        .catch(() => forceLogout());
-
-        function forceLogout(){
-            localStorage.clear();
-            window.location.replace("login.html");
-        }
-    </script>
-
-    <!-- STYLES UNCHANGED -->
     <style>
         :root{
-            --primary:#0b5ed7;
-            --primary-dark:#084298;
-            --bg:#f4f7fb;
+            --primary:#0f766e;
+            --bg:#f0fdfa;
             --card:#ffffff;
             --border:#e5e7eb;
-            --text:#1e293b;
-            --muted:#64748b;
+            --text:#1f2937;
         }
-        *{box-sizing:border-box}
-        body{margin:0;font-family:"Segoe UI";background:var(--bg)}
-        header{background:#0b5ed7;color:#fff;padding:22px}
-        .section{max-width:950px;margin:26px auto;background:#fff;padding:26px;border-radius:12px}
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-        .value{background:#f8fafc;padding:10px;border-radius:6px;border:1px solid var(--border)}
+        body{
+            margin:0;
+            font-family:Arial;
+            background:var(--bg);
+        }
+        header{
+            background:var(--primary);
+            color:#fff;
+            padding:22px;
+        }
+        .section{
+            max-width:950px;
+            margin:26px auto;
+            background:#fff;
+            padding:26px;
+            border-radius:14px;
+            box-shadow:0 6px 16px rgba(0,0,0,.06);
+        }
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+        }
+        .label{
+            font-weight:bold;
+            margin-bottom:6px;
+            color:#374151;
+        }
+        .value{
+            background:#f9fafb;
+            padding:12px;
+            border-radius:8px;
+            border:1px solid var(--border);
+            min-height:42px;
+        }
+        .actions{
+            max-width:950px;
+            margin:0 auto 30px;
+            display:flex;
+            justify-content:space-between;
+        }
+        .actions button{
+            background:var(--primary);
+            color:white;
+            border:none;
+            padding:10px 22px;
+            border-radius:8px;
+            cursor:pointer;
+        }
     </style>
+
+    <script>
+        const token = localStorage.getItem("patientToken");
+        const patientId = localStorage.getItem("patientId");
+
+        if(!token || !patientId){
+            location.replace("login.html");
+        }
+    </script>
 </head>
 
 <body>
 
 <header>
-    <h1>Medical Record Details</h1>
-    <div class="sub">Patient Clinical Report</div>
+    <h2>Medical Record Details</h2>
+    <p>Patient Clinical Report</p>
 </header>
 
 <div class="section">
@@ -94,28 +120,28 @@
 </div>
 
 <div class="actions">
-    <button onclick="history.back()">Back</button>
-    <button onclick="window.print()">Print</button>
+    <button onclick="history.back()">⬅ Back</button>
+    <button onclick="window.print()">🖨 Print</button>
 </div>
 
 <script>
-    /* ✅ ONLY FIX */
-    const record = JSON.parse(localStorage.getItem("selectedMedicalRecord"));
+    /* ✅ CORRECT KEY */
+    const record = JSON.parse(localStorage.getItem("medicalRecord"));
 
     if(!record){
         alert("No medical record found");
         history.back();
     }
 
-    document.getElementById("hospital").innerText = record.hospital_name || "-";
-    document.getElementById("department").innerText = record.department || "-";
-    document.getElementById("date").innerText =
-        new Date(record.date || record.created_at).toLocaleString();
+    /* SAFE DATA BINDING */
+    hospital.innerText = record.hospital_name || "N/A";
+    department.innerText = record.department || "N/A";
+    date.innerText = new Date(record.created_at).toLocaleString();
 
-    document.getElementById("diagnosis").innerText = record.diagnosis || "-";
-    document.getElementById("prescription").innerText = record.prescription || "-";
-    document.getElementById("notes").innerText = record.doctor_notes || "-";
-    document.getElementById("tests").innerText = record.tests || "-";
+    diagnosis.innerText = record.diagnosis || "N/A";
+    prescription.innerText = record.prescription || "N/A";
+    notes.innerText = record.doctor_notes || "N/A";
+    tests.innerText = record.tests || "N/A";
 </script>
 
 </body>
