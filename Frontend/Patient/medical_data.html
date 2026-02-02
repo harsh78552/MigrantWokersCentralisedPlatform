@@ -5,11 +5,11 @@
     <title>Patient Health Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- AUTH -->
+    <!-- AUTH + PATIENT ID -->
     <script>
         const token = localStorage.getItem("patientToken");
         const params = new URLSearchParams(window.location.search);
-        const patientId = params.get("patient_id") || localStorage.getItem("patientId");
+        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
 
         if (!token || !patientId) {
             window.location.replace("login.html");
@@ -17,46 +17,225 @@
 
         localStorage.setItem("patientId", patientId);
 
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-            headers: { Authorization: "Bearer " + token }
-        })
-        .then(res => { if (!res.ok) logout(); })
-        .catch(logout);
 
-        function logout(){
+        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
+            headers: { "Authorization": "Bearer " + token }
+        })
+        .then(res => { if (!res.ok) forceLogout(); })
+        .catch(() => forceLogout());
+
+        window.history.pushState(null,null,location.href);
+        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
+
+        function forceLogout(){
             localStorage.clear();
             window.location.replace("login.html");
         }
     </script>
 
     <style>
-        body{margin:0;font-family:Segoe UI;background:#f2f6fb}
-        header{background:#0a4fbf;color:#fff;padding:20px;font-size:22px;font-weight:700}
-        .topbar{background:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
-        .tab-btn{padding:10px 20px;border:1px solid #ccc;border-radius:6px;font-weight:700;cursor:pointer}
-        .tab-btn.active{background:#0a4fbf;color:#fff}
-        .container{max-width:1200px;margin:20px auto;background:#fff;border-radius:8px}
-        .table-header,.row{display:grid;grid-template-columns:140px 1.3fr 1fr 120px 120px;padding:14px}
-        .table-header{background:#f1f5fb;font-weight:800}
-        .row{border-bottom:1px solid #eee}
-        .btn{padding:8px 14px;border:none;background:#0a4fbf;color:#fff;border-radius:6px;cursor:pointer}
-        .tag{padding:5px 12px;border-radius:20px;color:#fff;font-size:12px;font-weight:700}
-        .tag.medical{background:#2563eb}
-        .tag.test{background:#059669}
-        .empty,.error{text-align:center;padding:40px}
-        .error{color:red}
+        :root{
+            --primary:#0a4fbf;
+            --primary-dark:#083a8f;
+            --accent:#eaf1ff;
+            --bg:#f2f6fb;
+            --card:#ffffff;
+            --border:#dbe2ea;
+            --text:#1e293b;
+            --muted:#64748b;
+            --medical:#2563eb;
+            --test:#059669;
+        }
+
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:"Segoe UI", Arial, sans-serif;
+            background:var(--bg);
+            color:var(--text);
+        }
+
+        /* ===== HEADER ===== */
+        header{
+            background:linear-gradient(135deg,#0a4fbf,#1e6fff);
+            color:white;
+            padding:22px 28px;
+            box-shadow:0 4px 10px rgba(0,0,0,.15);
+        }
+
+        header h1{
+            margin:0;
+            font-size:23px;
+            font-weight:700;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar{
+            background:white;
+            padding:14px 28px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border-bottom:1px solid var(--border);
+        }
+
+        .left{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .back-btn{
+            padding:8px 14px;
+            border-radius:6px;
+            border:1px solid var(--border);
+            background:#f8fafc;
+            font-weight:700;
+            cursor:pointer;
+            color:var(--text);
+        }
+
+        .back-btn:hover{
+            background:#eef2f7;
+        }
+
+        .badge{
+            background:var(--accent);
+            color:var(--primary);
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:700;
+        }
+
+        /* ===== TABS ===== */
+        .tabs{
+            display:flex;
+            gap:12px;
+        }
+
+        .tab-btn{
+            padding:10px 20px;
+            border-radius:6px;
+            border:1px solid var(--border);
+            background:#f9fafb;
+            font-weight:700;
+            cursor:pointer;
+            color:var(--text);
+        }
+
+        .tab-btn.active{
+            background:var(--primary);
+            color:white;
+            border-color:var(--primary);
+        }
+
+        /* ===== CARD ===== */
+        .container{
+            max-width:1200px;
+            margin:26px auto;
+            background:var(--card);
+            border-radius:12px;
+            box-shadow:0 12px 28px rgba(0,0,0,.08);
+            overflow:hidden;
+        }
+
+        /* ===== TABLE ===== */
+        .table-header,
+        .row{
+            display:grid;
+            grid-template-columns:140px 1.3fr 1fr 120px 120px;
+            padding:16px 22px;
+            align-items:center;
+        }
+
+        .table-header{
+            background:#f1f5fb;
+            font-weight:800;
+            font-size:14px;
+            color:#334155;
+            border-bottom:1px solid var(--border);
+        }
+
+        .row{
+            border-bottom:1px solid var(--border);
+            font-size:14px;
+        }
+
+        .row:hover{
+            background:#f8fbff;
+        }
+
+        /* ===== TAGS ===== */
+        .tag{
+            display:inline-block;
+            padding:5px 12px;
+            font-size:12px;
+            font-weight:800;
+            border-radius:20px;
+            color:white;
+            text-align:center;
+        }
+
+        .tag.medical{background:var(--medical)}
+        .tag.test{background:var(--test)}
+
+        /* ===== BUTTON ===== */
+        .btn{
+            padding:8px 16px;
+            border:none;
+            border-radius:6px;
+            background:var(--primary);
+            color:white;
+            font-size:13px;
+            font-weight:700;
+            cursor:pointer;
+        }
+
+        .btn:hover{
+            background:var(--primary-dark);
+        }
+
+        /* ===== STATES ===== */
+        .empty, .error{
+            padding:50px;
+            text-align:center;
+            font-size:14px;
+        }
+
+        .empty{color:var(--muted)}
+        .error{color:#dc2626}
+
+        /* ===== FOOTER ===== */
+        footer{
+            text-align:center;
+            padding:18px;
+            font-size:12px;
+            color:var(--muted);
+        }
     </style>
 </head>
 
 <body>
 
-<header>Patient Health Records</header>
+<header>
+    <h1>Patient Health Records</h1>
+</header>
 
 <div class="topbar">
-    <div>Patient ID: <b id="pid"></b></div>
-    <div>
-        <button id="medicalTab" class="tab-btn active" onclick="loadMedical()">Medical</button>
-        <button id="testTab" class="tab-btn" onclick="loadTests()">Tests</button>
+    <div class="left">
+        <button class="back-btn" onclick="goBack()"> Back</button>
+        <div class="badge">Patient ID: <span id="pid"></span></div>
+    </div>
+
+    <div class="tabs">
+        <button id="medicalTab" class="tab-btn active" onclick="loadMedical()">
+            Medical Records
+        </button>
+        <button id="testTab" class="tab-btn" onclick="loadTests()">
+            Test Reports
+        </button>
     </div>
 </div>
 
@@ -68,16 +247,23 @@
         <div>Type</div>
         <div>Action</div>
     </div>
+
     <div id="records">
-        <div class="empty">Loading records…</div>
+        <div class="empty">Loading health records…</div>
     </div>
 </div>
+
+<footer>
+    Digital Health Record System • Government & Hospital Integrated Platform
+</footer>
 
 <script>
     document.getElementById("pid").innerText = patientId;
     const recordsBox = document.getElementById("records");
-    let medicalRecords = [];
-    let testRecords = [];
+
+    function goBack(){
+        window.location.href = `main_page.html?patient_id=${patientId}`;
+    }
 
     function setActive(tab){
         medicalTab.classList.remove("active");
@@ -85,82 +271,94 @@
         document.getElementById(tab).classList.add("active");
     }
 
-    /* ===== MEDICAL RECORDS ===== */
+    /* ===== MEDICAL ===== */
     function loadMedical(){
         setActive("medicalTab");
         recordsBox.innerHTML="<div class='empty'>Loading medical records…</div>";
 
         fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/migrant/patient/medical/reports?patient_id=${patientId}`,{
-            headers:{ Authorization:"Bearer "+token }
+            headers:{Authorization:"Bearer "+token}
         })
         .then(r=>r.json())
         .then(data=>{
-            medicalRecords = data || [];
             recordsBox.innerHTML="";
-
-            if(!medicalRecords.length){
-                recordsBox.innerHTML="<div class='empty'>No medical records</div>";
+            if(!Array.isArray(data)||data.length===0){
+                recordsBox.innerHTML="<div class='empty'>No medical records available</div>";
                 return;
             }
-
-            medicalRecords.forEach((r,i)=>{
+            data.forEach(r=>{
                 recordsBox.innerHTML+=`
                 <div class="row">
-                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
+                    <div>${new Date(r.date||r.created_at).toLocaleDateString()}</div>
                     <div>${r.hospital_name}</div>
                     <div>${r.department}</div>
                     <div><span class="tag medical">Medical</span></div>
-                    <div><button class="btn" onclick="openMedical(${i})">View</button></div>
+                    <div>
+                        <button class="btn" onclick='openDetails(${JSON.stringify(r)})'>
+                            View
+                        </button>
+                    </div>
                 </div>`;
             });
         })
-        .catch(()=>recordsBox.innerHTML="<div class='error'>Failed to load medical records</div>");
+        .catch(()=>recordsBox.innerHTML="<div class='error'>Unable to load medical records</div>");
     }
 
-    /* ===== TEST REPORTS ===== */
+    /* ===== TEST ===== */
     function loadTests(){
-        setActive("testTab");
-        recordsBox.innerHTML="<div class='empty'>Loading test reports…</div>";
+    setActive("testTab");
+    recordsBox.innerHTML="<div class='empty'>Loading test reports…</div>";
 
-        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
-            headers:{ Authorization:"Bearer "+token }
-        })
-        .then(r=>r.json())
-        .then(data=>{
-            testRecords = data || [];
-            recordsBox.innerHTML="";
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+        headers:{ Authorization:"Bearer "+token }
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        recordsBox.innerHTML="";
 
-            if(!testRecords.length){
-                recordsBox.innerHTML="<div class='empty'>No test reports</div>";
-                return;
-            }
+        if(!Array.isArray(data) || data.length===0){
+            recordsBox.innerHTML="<div class='empty'>No test reports available</div>";
+            return;
+        }
 
-            testRecords.forEach((r,i)=>{
-                recordsBox.innerHTML+=`
+        data.forEach(r=>{
+            const testName = r.report_name || r.report_types || "Test";
+            const date = r.created_at
+                ? new Date(r.created_at).toLocaleDateString()
+                : "N/A";
+
+            recordsBox.innerHTML += `
                 <div class="row">
-                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
-                    <div>${r.report_category}</div>
-                    <div>${r.report_types}</div>
+                    <div>${date}</div>
+                    <div>${r.report_category || "Lab"}</div>
+                    <div>${testName}</div>
                     <div><span class="tag test">Test</span></div>
-                    <div><button class="btn" onclick="openTest(${i})">View</button></div>
-                </div>`;
-            });
-        })
-        .catch(()=>recordsBox.innerHTML="<div class='error'>Failed to load test reports</div>");
-    }
-
-    /* ===== OPEN PAGES ===== */
-    function openMedical(i){
+                    <div>
+                        <button class="btn"
+                            onclick='openTestReport(${JSON.stringify(r)})'>
+                            View
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    })
+    .catch(()=>{
+        recordsBox.innerHTML="<div class='error'>Unable to load test reports</div>";
+    });
+}
+ function openMedical(i){
         localStorage.setItem("selectedMedicalRecord", JSON.stringify(medicalRecords[i]));
-        window.location.href = `record_details.html?patient_id=${patientId}`;
+        window.location.href = `medical_record_view.html?patient_id=${patientId}`;
     }
 
-    function openTest(i){
-        localStorage.setItem("selectedTestReport", JSON.stringify(testRecords[i]));
-        window.location.href = `test_report_view.html?patient_id=${patientId}`;
-    }
+/* OPEN TEST REPORT PAGE */
+function openTestReport(record){
+    localStorage.setItem("selectedTestReport", JSON.stringify(record));
+    window.location.href = `test_report_view.html?patient_id=${patientId}`;
+}
 
-    /* DEFAULT LOAD */
+    /* DEFAULT */
     loadMedical();
 </script>
 
