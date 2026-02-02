@@ -3,160 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>Test Report</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script>
-        const token = localStorage.getItem("patientToken");
-        const params = new URLSearchParams(window.location.search);
-        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
-
-        if (!token || !patientId) {
-            window.location.replace("login.html");
-        }
-
-        localStorage.setItem("patientId", patientId);
-
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-            headers: { "Authorization": "Bearer " + token }
-        })
-        .then(res => { if (!res.ok) forceLogout(); })
-        .catch(() => forceLogout());
-
-        window.history.pushState(null,null,location.href);
-        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
-
-        function forceLogout(){
-            localStorage.clear();
-            window.location.replace("login.html");
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
-        :root{
-            --blue:#0a4fbf;
-            --green:#059669;
-            --dark:#334155;
-            --gray:#e5e7eb;
-            --bg:#f4f6f8;
-            --card:#ffffff;
-            --text:#1e293b;
-            --muted:#6b7280;
-        }
-
-        *{box-sizing:border-box}
-
         body{
             margin:0;
-            font-family:"Segoe UI",Arial;
-            background:var(--bg);
-            color:var(--text);
+            font-family:Arial;
+            background:#f4f6fb;
         }
-
         header{
-            background:linear-gradient(135deg,#0a4fbf,#1e6fff);
-            color:white;
-            padding:16px 24px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+            background:#0a4fbf;
+            color:#fff;
+            padding:18px 22px;
         }
-
-        .header-left{
-            display:flex;
-            align-items:center;
-            gap:12px;
-        }
-
-        .back-btn{
-            background:white;
-            color:var(--blue);
-            border:none;
-            padding:6px 12px;
-            border-radius:6px;
-            font-weight:700;
-            cursor:pointer;
-        }
-
-        .print-btn{
-            background:var(--green);
-            color:white;
-            border:none;
-            padding:8px 16px;
-            border-radius:6px;
-            font-weight:700;
-            cursor:pointer;
-        }
-
         .container{
-            max-width:1200px;
-            margin:24px auto;
-            background:var(--card);
-            border-radius:12px;
-            box-shadow:0 10px 24px rgba(0,0,0,.08);
-            padding:22px;
+            max-width:800px;
+            margin:30px auto;
         }
-
-        .meta{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-            gap:14px;
-            margin-bottom:18px;
-        }
-
-        .meta div{
-            background:#f9fafb;
-            padding:12px;
+        .card{
+            background:#fff;
+            padding:24px;
             border-radius:8px;
-            font-size:13px;
-            border:1px solid var(--gray);
+            box-shadow:0 4px 10px rgba(0,0,0,.06);
         }
-
-        .meta span{
-            display:block;
-            font-weight:800;
-            margin-bottom:4px;
-            color:var(--dark);
-        }
-
-        .toolbar{
+        .row{
             display:flex;
-            gap:10px;
             margin-bottom:12px;
         }
-
-        .toolbar button{
-            background:var(--dark);
-            color:white;
+        .label{
+            width:160px;
+            font-weight:bold;
+            color:#444;
+        }
+        .value{
+            color:#222;
+        }
+        .btn{
+            background:#0a4fbf;
+            color:#fff;
             border:none;
-            padding:7px 14px;
-            border-radius:6px;
-            font-size:13px;
-            font-weight:700;
+            padding:8px 18px;
+            border-radius:5px;
             cursor:pointer;
         }
-
-        .viewer-wrapper{
-            border:1px solid var(--gray);
-            border-radius:10px;
-            height:80vh;
-            overflow:auto;
-            background:white;
-            display:flex;
-            justify-content:center;
-            align-items:flex-start;
-            padding:20px;
+        .footer{
+            margin-top:25px;
+            text-align:right;
         }
-
-        .viewer-wrapper img{
-            max-width:100%;
-            height:auto;
-            transform-origin:top center;
-        }
-
-        .viewer-wrapper iframe{
-            width:100%;
-            height:100%;
-            border:none;
+        .empty{
+            text-align:center;
+            padding:40px;
+            color:#666;
         }
     </style>
 </head>
@@ -164,70 +61,50 @@
 <body>
 
 <header>
-    <div class="header-left">
-        <button class="back-btn" onclick="goBack()">Back</button>
-        <strong>Test Report</strong>
-    </div>
-    <button class="print-btn" onclick="window.print()">Print</button>
+    <h2>Test Report Details</h2>
 </header>
 
 <div class="container">
-
-    <div class="meta">
-        <div><span>Patient ID</span><span id="pid"></span></div>
-        <div><span>Category</span><span id="cat"></span></div>
-        <div><span>Test Name</span><span id="tname"></span></div>
-        <div><span>Date</span><span id="date"></span></div>
-    </div>
-
-    <div class="toolbar" id="imgTools" style="display:none;">
-        <button onclick="zoomIn()">Zoom In</button>
-        <button onclick="zoomOut()">Zoom Out</button>
-        <button onclick="resetZoom()">Fit</button>
-    </div>
-
-    <div class="viewer-wrapper" id="viewer"></div>
-
+    <div class="card" id="data"></div>
 </div>
 
 <script>
-    function goBack(){
-        window.location.href = `medical_data.html?patient_id=${patientId}`;
-    }
+    const record = JSON.parse(localStorage.getItem("testRecord"));
+    const box = document.getElementById("data");
 
-    document.getElementById("pid").innerText = patientId;
-    document.getElementById("cat").innerText = record.report_category;
-    document.getElementById("tname").innerText = record.report_name || record.report_types;
-    document.getElementById("date").innerText =
-        new Date(record.created_at).toLocaleDateString();
-
-    const viewer = document.getElementById("viewer");
-    const tools = document.getElementById("imgTools");
-    const url = record.file_url;
-    let scale = 1;
-
-    if(url.toLowerCase().endsWith(".pdf")){
-        viewer.innerHTML = `<iframe src="${url}"></iframe>`;
+    if(!record){
+        box.innerHTML = `<div class="empty">No report found</div>`;
+        setTimeout(()=>location.replace("patient_records.html"),1500);
     }else{
-        tools.style.display = "flex";
-        viewer.innerHTML = `<img id="reportImg" src="${url}" alt="Test Report">`;
+        box.innerHTML = `
+        <div class="row">
+            <div class="label">Report Category</div>
+            <div class="value">${record.report_category || "N/A"}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Report Type</div>
+            <div class="value">${record.report_types || "N/A"}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Report Date</div>
+            <div class="value">${new Date(record.created_at).toLocaleDateString()}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Description</div>
+            <div class="value">${record.description || "No description provided"}</div>
+        </div>
+
+        <div class="footer">
+            <button class="btn" onclick="goBack()">⬅ Back to Records</button>
+        </div>
+        `;
     }
 
-    function zoomIn(){
-        scale += 0.1;
-        document.getElementById("reportImg").style.transform = `scale(${scale})`;
-    }
-
-    function zoomOut(){
-        if(scale > 0.3){
-            scale -= 0.1;
-            document.getElementById("reportImg").style.transform = `scale(${scale})`;
-        }
-    }
-
-    function resetZoom(){
-        scale = 1;
-        document.getElementById("reportImg").style.transform = "scale(1)";
+    function goBack(){
+        location.href = "patient_records.html";
     }
 </script>
 
