@@ -280,28 +280,37 @@
 
     /* ===== TEST ===== */
     function loadTests(){
-        setActive("testTab");
+    setActive("testTab");
 
-        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
-            headers:{ Authorization:"Bearer "+token }
-        })
-        .then(r=>r.json())
-        .then(data=>{
-            recordsBox.innerHTML="";
-            data.forEach(r=>{
-                recordsBox.innerHTML+=`
-                <div class="row">
-                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
-                    <div>${r.report_category}</div>
-                    <div>${r.report_types}</div>
-                    <div><span class="tag test">Test</span></div>
-                    <div>
-                        <button class="btn" onclick='openTestReport(${JSON.stringify(r)})'>View</button>
-                    </div>
-                </div>`;
-            });
+    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+        headers:{ Authorization:"Bearer "+token }
+    })
+    .then(r => r.json())
+    .then(data => {
+
+        recordsBox.innerHTML = "";
+
+        // ✅ FIX HERE
+        const records = Array.isArray(data) ? data : data.data || [];
+
+        records.forEach(r => {
+            recordsBox.innerHTML += `
+            <div class="row">
+                <div>${new Date(r.created_at).toLocaleDateString()}</div>
+                <div>${r.report_category}</div>
+                <div>${r.report_types}</div>
+                <div><span class="tag test">Test</span></div>
+                <div>
+                    <button class="btn"
+                        onclick='openTestReport(${JSON.stringify(r)})'>
+                        View
+                    </button>
+                </div>
+            </div>`;
         });
-    }
+    });
+}
+
 
     /* ✅ THIS IS THE ONLY FIX */
     function openDetails(record){
