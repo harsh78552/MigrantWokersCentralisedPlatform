@@ -152,7 +152,7 @@
     /* ===== OPEN PAGES ===== */
     function openMedical(i){
         localStorage.setItem("selectedMedicalRecord", JSON.stringify(medicalRecords[i]));
-        window.location.href = `medical_record_view.html?patient_id=${patientId}`;
+        window.location.href = `record_details.html?patient_id=${patientId}`;
     }
 
     function openTest(i){
