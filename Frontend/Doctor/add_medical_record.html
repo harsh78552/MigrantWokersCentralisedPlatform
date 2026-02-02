@@ -261,51 +261,54 @@
 
 <!-- ================= SCRIPTS ================= -->
 <script>
-    document.getElementById("patient_id").value = patientId;
+document.getElementById("patient_id").value = window.patientId;
 
-    function openTab(id,el){
-        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-        el.classList.add("active");
-        document.getElementById(id).classList.add("active");
-    }
+function openTab(id,el){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById(id).classList.add("active");
+}
 
-    reportType.addEventListener("change",()=>{
-        otherReportBox.style.display = reportType.value==="CUSTOM"?"block":"none";
+reportType.addEventListener("change",()=>{
+    otherReportBox.style.display = reportType.value==="CUSTOM"?"block":"none";
+});
+
+recordForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!confirm("Submit this record?")) return;
+
+    const fd = new FormData(recordForm);
+
+    const tests=[];
+    document.querySelectorAll("input[name='tests']:checked")
+        .forEach(cb=>tests.push(cb.value));
+    if(customTest.value.trim()) tests.push(customTest.value.trim());
+    if(tests.length) fd.append("tests", tests.join(", "));
+
+    if(reportCategory.value) fd.append("report_category", reportCategory.value);
+    if(reportType.value) fd.append("report_type", reportType.value);
+    if(otherReport.value) fd.append("report_name", otherReport.value);
+    if(reportFile.files.length) fd.append("report_file", reportFile.files[0]);
+
+    fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes",{
+        method:"POST",
+        headers:{
+            Authorization: "Bearer " + window.token
+        },
+        body: fd
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        alert(d.message || "Record Saved");
+        recordForm.reset();
+        patient_id.value = window.patientId;
+        otherReportBox.style.display="none";
+        openTab("clinical", document.querySelector(".tab"));
     });
-
-    recordForm.addEventListener("submit",e=>{
-        e.preventDefault();
-        if(!confirm("Submit this record?")) return;
-
-        const fd=new FormData(recordForm);
-
-        const tests=[];
-        document.querySelectorAll("input[name='tests']:checked")
-            .forEach(cb=>tests.push(cb.value));
-        if(customTest.value.trim()) tests.push(customTest.value.trim());
-        if(tests.length) fd.append("tests",tests.join(", "));
-
-        if(reportCategory.value) fd.append("report_category",reportCategory.value);
-        if(reportType.value) fd.append("report_type",reportType.value);
-        if(otherReport.value) fd.append("report_name",otherReport.value);
-        if(reportFile.files.length) fd.append("report_file",reportFile.files[0]);
-
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes",{
-            method:"POST",
-            headers:{Authorization:"Bearer "+token},
-            body:fd
-        })
-        .then(r=>r.json())
-        .then(d=>{
-            alert(d.message || "Record Saved");
-            recordForm.reset();
-            patient_id.value = patientId;
-            otherReportBox.style.display="none";
-            openTab("clinical",document.querySelector(".tab"));
-        });
-    });
+});
 </script>
+
 
 </body>
 </html>
