@@ -29,7 +29,7 @@ class PatientReportFiles(MethodView):
     def __init__(self):
         self.patient_file_data = MedicalRecordFileDatabase()
 
-    @check_role('doctor')
+    @check_role('patient')
     @jwt_required(locations=['headers'])
     def get(self):
         patient_id = request.args.get("patient_id")
