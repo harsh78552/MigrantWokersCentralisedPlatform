@@ -2,58 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test Report</title>
+    <title>Report Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
         body{
             margin:0;
             font-family:Arial;
-            background:#f4f6fb;
+            background:#f0fdfa;
         }
         header{
-            background:#0a4fbf;
-            color:#fff;
-            padding:18px 22px;
+            background:#0f766e;
+            color:white;
+            padding:16px;
         }
         .container{
-            max-width:800px;
-            margin:30px auto;
+            max-width:900px;
+            margin:20px auto;
         }
         .card{
-            background:#fff;
-            padding:24px;
-            border-radius:8px;
+            background:white;
+            padding:20px;
+            border-radius:10px;
             box-shadow:0 4px 10px rgba(0,0,0,.06);
         }
-        .row{
-            display:flex;
-            margin-bottom:12px;
+        .viewer{
+            margin-top:20px;
         }
-        .label{
-            width:160px;
-            font-weight:bold;
-            color:#444;
-        }
-        .value{
-            color:#222;
+        .viewer img, .viewer iframe{
+            width:100%;
+            height:600px;
+            border:none;
         }
         .btn{
-            background:#0a4fbf;
-            color:#fff;
+            background:#0f766e;
+            color:white;
             border:none;
             padding:8px 18px;
-            border-radius:5px;
+            border-radius:6px;
             cursor:pointer;
-        }
-        .footer{
-            margin-top:25px;
-            text-align:right;
-        }
-        .empty{
-            text-align:center;
-            padding:40px;
-            color:#666;
         }
     </style>
 </head>
@@ -61,50 +48,36 @@
 <body>
 
 <header>
-    <h2>Test Report Details</h2>
+    <h3>Medical Report</h3>
 </header>
 
 <div class="container">
-    <div class="card" id="data"></div>
+    <div class="card" id="content"></div>
 </div>
 
 <script>
     const record = JSON.parse(localStorage.getItem("testRecord"));
-    const box = document.getElementById("data");
+    const box = document.getElementById("content");
 
     if(!record){
-        box.innerHTML = `<div class="empty">No report found</div>`;
-        setTimeout(()=>location.replace("patient_records.html"),1500);
+        box.innerHTML="No report found";
     }else{
+        const fileUrl = record.report_file || record.file_url;
+
         box.innerHTML = `
-        <div class="row">
-            <div class="label">Report Category</div>
-            <div class="value">${record.report_category || "N/A"}</div>
+        <p><b>Category:</b> ${record.report_category}</p>
+        <p><b>Date:</b> ${new Date(record.created_at).toLocaleDateString()}</p>
+
+        <div class="viewer">
+            ${fileUrl.endsWith(".pdf")
+                ? `<iframe src="${fileUrl}"></iframe>`
+                : `<img src="${fileUrl}" alt="Report Image">`
+            }
         </div>
 
-        <div class="row">
-            <div class="label">Report Type</div>
-            <div class="value">${record.report_types || "N/A"}</div>
-        </div>
-
-        <div class="row">
-            <div class="label">Report Date</div>
-            <div class="value">${new Date(record.created_at).toLocaleDateString()}</div>
-        </div>
-
-        <div class="row">
-            <div class="label">Description</div>
-            <div class="value">${record.description || "No description provided"}</div>
-        </div>
-
-        <div class="footer">
-            <button class="btn" onclick="goBack()">⬅ Back to Records</button>
-        </div>
+        <br>
+        <button class="btn" onclick="history.back()">⬅ Back</button>
         `;
-    }
-
-    function goBack(){
-        location.href = "patient_records.html";
     }
 </script>
 

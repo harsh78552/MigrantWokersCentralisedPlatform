@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Patient Health Records</title>
+    <title>My Health Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
+        :root{
+            --primary:#0f766e;
+            --bg:#f0fdfa;
+        }
         body{
             margin:0;
             font-family:Arial;
-            background:#f4f6fb;
+            background:var(--bg);
         }
         header{
-            background:#0a4fbf;
+            background:var(--primary);
             color:#fff;
             padding:20px;
         }
@@ -20,43 +24,40 @@
             max-width:1100px;
             margin:20px auto;
         }
+        .tabs button{
+            padding:10px 18px;
+            border:none;
+            border-radius:20px;
+            margin-right:8px;
+            cursor:pointer;
+        }
+        .active{
+            background:var(--primary);
+            color:#fff;
+        }
         .card{
             background:#fff;
-            border-radius:6px;
-            box-shadow:0 2px 6px rgba(0,0,0,.05);
+            border-radius:10px;
+            box-shadow:0 4px 10px rgba(0,0,0,.06);
             margin-bottom:10px;
         }
         .row,.head{
             display:grid;
-            grid-template-columns:140px 1fr 120px 100px;
+            grid-template-columns:140px 1fr 120px 140px;
             padding:14px;
             align-items:center;
         }
         .head{
             font-weight:bold;
-            background:#eef3ff;
+            background:#ecfeff;
         }
         .btn{
-            background:#0a4fbf;
+            background:var(--primary);
             color:#fff;
             border:none;
             padding:6px 14px;
-            border-radius:4px;
+            border-radius:6px;
             cursor:pointer;
-        }
-        .tabs{
-            margin:15px 0;
-        }
-        .tabs button{
-            padding:8px 16px;
-            border:none;
-            margin-right:8px;
-            border-radius:20px;
-            cursor:pointer;
-        }
-        .active{
-            background:#0a4fbf;
-            color:white;
         }
         .center{
             text-align:center;
@@ -68,7 +69,6 @@
     <script>
         const token = localStorage.getItem("patientToken");
         const patientId = localStorage.getItem("patientId");
-
         if(!token || !patientId){
             location.replace("login.html");
         }
@@ -78,7 +78,7 @@
 <body>
 
 <header>
-    <h2>Patient Health Records</h2>
+    <h2>My Health Records</h2>
     <p>Patient ID: <b id="pid"></b></p>
 </header>
 
@@ -86,7 +86,7 @@
 
     <div class="tabs">
         <button id="medBtn" class="active" onclick="loadMedical()">Medical</button>
-        <button id="testBtn" onclick="loadTests()">Test</button>
+        <button id="testBtn" onclick="loadTests()">Reports</button>
     </div>
 
     <div class="card head">
@@ -108,11 +108,9 @@
         medBtn.classList.toggle("active", med);
         testBtn.classList.toggle("active", !med);
     }
-
     function showLoading(){
         box.innerHTML = `<div class="center">Loading records...</div>`;
     }
-
     function showEmpty(){
         box.innerHTML = `<div class="center">No records found</div>`;
     }
@@ -120,15 +118,12 @@
     function loadMedical(){
     setTab(true);
     showLoading();
-
     fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/migrant/patient/medical/reports?patient_id=${patientId}`,{
     headers:{Authorization:"Bearer "+token}
     })
     .then(r=>r.json())
     .then(data=>{
         if(!data.length){ showEmpty(); return; }
-
-        data.sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
         box.innerHTML="";
         data.forEach(r=>{
             box.innerHTML+=`
@@ -136,37 +131,32 @@
                 <div>${new Date(r.created_at).toLocaleDateString()}</div>
                 <div>${r.hospital_name}</div>
                 <div>Medical</div>
-                <div><button class="btn" onclick='openMedical(${JSON.stringify(r)})'>View</button></div>
+                <div><button class="btn" onclick='openMedical(${JSON.stringify(r)})'>View Details</button></div>
             </div>`;
         });
-    })
-    .catch(()=> showEmpty());
+    });
     }
 
     function loadTests(){
     setTab(false);
     showLoading();
-
     fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/migrant/patient/report/files?patient_id=${patientId}`,{
     headers:{Authorization:"Bearer "+token}
     })
     .then(r=>r.json())
     .then(data=>{
         if(!data.length){ showEmpty(); return; }
-
-        data.sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
         box.innerHTML="";
         data.forEach(r=>{
             box.innerHTML+=`
             <div class="card row">
                 <div>${new Date(r.created_at).toLocaleDateString()}</div>
                 <div>${r.report_category}</div>
-                <div>Test</div>
-                <div><button class="btn" onclick='openTest(${JSON.stringify(r)})'>View</button></div>
+                <div>Report</div>
+                <div><button class="btn" onclick='openTest(${JSON.stringify(r)})'>Open Report</button></div>
             </div>`;
         });
-    })
-    .catch(()=> showEmpty());
+    });
     }
 
     function openMedical(r){
@@ -176,7 +166,7 @@
 
     function openTest(r){
     localStorage.setItem("testRecord", JSON.stringify(r));
-    location.href="report.html";
+    location.href="test_report_view.html";
     }
 
     loadMedical();
