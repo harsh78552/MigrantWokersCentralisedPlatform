@@ -18,9 +18,7 @@ class DoctorPatientMedicalHistory(MethodView):
     @jwt_required(locations=['headers'])
     def get(self):
         patient_id = request.args.get("patient_id")
-        print(patient_id)
         response = self.patient_data.find_medical_data(patient_id)
-        print(response)
         return response
 
 
