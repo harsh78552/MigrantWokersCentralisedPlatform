@@ -7,19 +7,23 @@
 
     <!-- ================= AUTH & TOKEN CHECK ================= -->
     <script>
-        const token = localStorage.getItem("doctorToken");
-        const params = new URLSearchParams(window.location.search);
-        const patientId = params.get("patient_id") || localStorage.getItem("patientId");
+        /* ===== GLOBAL VALUES ===== */
+        window.token = localStorage.getItem("doctorToken");
 
-        if (!token || !patientId) {
+        const params = new URLSearchParams(window.location.search);
+        window.patientId = params.get("patient_id") || localStorage.getItem("patientId");
+
+        /* ===== AUTH CHECK ===== */
+        if (!window.token || !window.patientId) {
             window.location.replace("login.html");
         }
 
-        localStorage.setItem("patientId", patientId);
+        /* SAVE PATIENT ID */
+        localStorage.setItem("patientId", window.patientId);
 
-        /* Token validation */
+        /* TOKEN VALIDATION */
         fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-            headers: { Authorization: "Bearer " + token }
+            headers: { Authorization: "Bearer " + window.token }
         })
         .then(res => { if (!res.ok) logout(); })
         .catch(logout);
@@ -29,7 +33,7 @@
             window.location.replace("login.html");
         }
 
-        /* Disable back button */
+        /* DISABLE BACK BUTTON */
         window.history.pushState(null,null,location.href);
         window.onpopstate = ()=>window.history.pushState(null,null,location.href);
     </script>
@@ -37,10 +41,7 @@
     <!-- ================= STYLES ================= -->
     <style>
         :root{
-            --bg:#f0f9ff;
-            --card:#ffffff;
             --primary:#0284c7;
-            --success:#22c55e;
             --border:#e2e8f0;
         }
         *{box-sizing:border-box}
@@ -261,54 +262,58 @@
 
 <!-- ================= SCRIPTS ================= -->
 <script>
-document.getElementById("patient_id").value = window.patientId;
+    document.addEventListener("DOMContentLoaded",()=>{
 
-function openTab(id,el){
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-    el.classList.add("active");
-    document.getElementById(id).classList.add("active");
-}
+        document.getElementById("patient_id").value = window.patientId;
 
-reportType.addEventListener("change",()=>{
-    otherReportBox.style.display = reportType.value==="CUSTOM"?"block":"none";
-});
+        window.openTab = function(id,el){
+            document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+            el.classList.add("active");
+            document.getElementById(id).classList.add("active");
+        };
 
-recordForm.addEventListener("submit",e=>{
-    e.preventDefault();
-    if(!confirm("Submit this record?")) return;
+        reportType.addEventListener("change",()=>{
+            otherReportBox.style.display =
+                reportType.value==="CUSTOM"?"block":"none";
+        });
 
-    const fd = new FormData(recordForm);
+        recordForm.addEventListener("submit",e=>{
+            e.preventDefault();
+            if(!confirm("Submit this record?")) return;
 
-    const tests=[];
-    document.querySelectorAll("input[name='tests']:checked")
-        .forEach(cb=>tests.push(cb.value));
-    if(customTest.value.trim()) tests.push(customTest.value.trim());
-    if(tests.length) fd.append("tests", tests.join(", "));
+            const fd = new FormData(recordForm);
 
-    if(reportCategory.value) fd.append("report_category", reportCategory.value);
-    if(reportType.value) fd.append("report_type", reportType.value);
-    if(otherReport.value) fd.append("report_name", otherReport.value);
-    if(reportFile.files.length) fd.append("report_file", reportFile.files[0]);
+            const tests=[];
+            document.querySelectorAll("input[name='tests']:checked")
+                .forEach(cb=>tests.push(cb.value));
+            if(customTest.value.trim()) tests.push(customTest.value.trim());
+            if(tests.length) fd.append("tests", tests.join(", "));
 
-    fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes",{
-        method:"POST",
-        headers:{
-            Authorization: "Bearer " + window.token
-        },
-        body: fd
-    })
-    .then(r=>r.json())
-    .then(d=>{
-        alert(d.message || "Record Saved");
-        recordForm.reset();
-        patient_id.value = window.patientId;
-        otherReportBox.style.display="none";
-        openTab("clinical", document.querySelector(".tab"));
+            if(reportCategory.value) fd.append("report_category", reportCategory.value);
+            if(reportType.value) fd.append("report_type", reportType.value);
+            if(otherReport.value) fd.append("report_name", otherReport.value);
+            if(reportFile.files.length) fd.append("report_file", reportFile.files[0]);
+
+            fetch("https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes",{
+                method:"POST",
+                headers:{
+                    Authorization: "Bearer " + window.token
+                },
+                body: fd
+            })
+            .then(r=>r.json())
+            .then(d=>{
+                alert(d.message || "Record Saved");
+                recordForm.reset();
+                patient_id.value = window.patientId;
+                otherReportBox.style.display="none";
+                openTab("clinical", document.querySelector(".tab"));
+            });
+        });
+
     });
-});
 </script>
-
 
 </body>
 </html>
