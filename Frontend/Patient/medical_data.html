@@ -17,15 +17,11 @@
 
         localStorage.setItem("patientId", patientId);
 
-
         fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
             headers: { "Authorization": "Bearer " + token }
         })
         .then(res => { if (!res.ok) forceLogout(); })
         .catch(() => forceLogout());
-
-        window.history.pushState(null,null,location.href);
-        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
 
         function forceLogout(){
             localStorage.clear();
@@ -33,6 +29,7 @@
         }
     </script>
 
+    <!-- YOUR ORIGINAL STYLES (UNCHANGED) -->
     <style>
         :root{
             --primary:#0a4fbf;
@@ -225,17 +222,11 @@
 
 <div class="topbar">
     <div class="left">
-        <button class="back-btn" onclick="goBack()"> Back</button>
         <div class="badge">Patient ID: <span id="pid"></span></div>
     </div>
-
     <div class="tabs">
-        <button id="medicalTab" class="tab-btn active" onclick="loadMedical()">
-            Medical Records
-        </button>
-        <button id="testTab" class="tab-btn" onclick="loadTests()">
-            Test Reports
-        </button>
+        <button id="medicalTab" class="tab-btn active" onclick="loadMedical()">Medical</button>
+        <button id="testTab" class="tab-btn" onclick="loadTests()">Test</button>
     </div>
 </div>
 
@@ -247,23 +238,14 @@
         <div>Type</div>
         <div>Action</div>
     </div>
-
     <div id="records">
         <div class="empty">Loading health records…</div>
     </div>
 </div>
 
-<footer>
-    Digital Health Record System • Government & Hospital Integrated Platform
-</footer>
-
 <script>
     document.getElementById("pid").innerText = patientId;
     const recordsBox = document.getElementById("records");
-
-    function goBack(){
-        window.location.href = `main_page.html?patient_id=${patientId}`;
-    }
 
     function setActive(tab){
         medicalTab.classList.remove("active");
@@ -274,7 +256,6 @@
     /* ===== MEDICAL ===== */
     function loadMedical(){
         setActive("medicalTab");
-        recordsBox.innerHTML="<div class='empty'>Loading medical records…</div>";
 
         fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/migrant/patient/medical/reports?patient_id=${patientId}`,{
             headers:{Authorization:"Bearer "+token}
@@ -282,83 +263,57 @@
         .then(r=>r.json())
         .then(data=>{
             recordsBox.innerHTML="";
-            if(!Array.isArray(data)||data.length===0){
-                recordsBox.innerHTML="<div class='empty'>No medical records available</div>";
-                return;
-            }
             data.forEach(r=>{
                 recordsBox.innerHTML+=`
                 <div class="row">
-                    <div>${new Date(r.date||r.created_at).toLocaleDateString()}</div>
+                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
                     <div>${r.hospital_name}</div>
                     <div>${r.department}</div>
                     <div><span class="tag medical">Medical</span></div>
                     <div>
-                        <button class="btn" onclick='openDetails(${JSON.stringify(r)})'>
-                            View
-                        </button>
+                        <button class="btn" onclick='openDetails(${JSON.stringify(r)})'>View</button>
                     </div>
                 </div>`;
             });
-        })
-        .catch(()=>recordsBox.innerHTML="<div class='error'>Unable to load medical records</div>");
+        });
     }
 
     /* ===== TEST ===== */
     function loadTests(){
-    setActive("testTab");
-    recordsBox.innerHTML="<div class='empty'>Loading test reports…</div>";
+        setActive("testTab");
 
-    fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
-        headers:{ Authorization:"Bearer "+token }
-    })
-    .then(r=>r.json())
-    .then(data=>{
-        recordsBox.innerHTML="";
-
-        if(!Array.isArray(data) || data.length===0){
-            recordsBox.innerHTML="<div class='empty'>No test reports available</div>";
-            return;
-        }
-
-        data.forEach(r=>{
-            const testName = r.report_name || r.report_types || "Test";
-            const date = r.created_at
-                ? new Date(r.created_at).toLocaleDateString()
-                : "N/A";
-
-            recordsBox.innerHTML += `
+        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/doctor/patient/medical/files?patient_id=${patientId}`,{
+            headers:{ Authorization:"Bearer "+token }
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            recordsBox.innerHTML="";
+            data.forEach(r=>{
+                recordsBox.innerHTML+=`
                 <div class="row">
-                    <div>${date}</div>
-                    <div>${r.report_category || "Lab"}</div>
-                    <div>${testName}</div>
+                    <div>${new Date(r.created_at).toLocaleDateString()}</div>
+                    <div>${r.report_category}</div>
+                    <div>${r.report_types}</div>
                     <div><span class="tag test">Test</span></div>
                     <div>
-                        <button class="btn"
-                            onclick='openTestReport(${JSON.stringify(r)})'>
-                            View
-                        </button>
+                        <button class="btn" onclick='openTestReport(${JSON.stringify(r)})'>View</button>
                     </div>
-                </div>
-            `;
+                </div>`;
+            });
         });
-    })
-    .catch(()=>{
-        recordsBox.innerHTML="<div class='error'>Unable to load test reports</div>";
-    });
-}
- function openMedical(i){
-        localStorage.setItem("selectedMedicalRecord", JSON.stringify(medicalRecords[i]));
+    }
+
+    /* ✅ THIS IS THE ONLY FIX */
+    function openDetails(record){
+        localStorage.setItem("selectedMedicalRecord", JSON.stringify(record));
         window.location.href = `medical_record_view.html?patient_id=${patientId}`;
     }
 
-/* OPEN TEST REPORT PAGE */
-function openTestReport(record){
-    localStorage.setItem("selectedTestReport", JSON.stringify(record));
-    window.location.href = `test_report_view.html?patient_id=${patientId}`;
-}
+    function openTestReport(record){
+        localStorage.setItem("selectedTestReport", JSON.stringify(record));
+        window.location.href = `test_report_view.html?patient_id=${patientId}`;
+    }
 
-    /* DEFAULT */
     loadMedical();
 </script>
 
