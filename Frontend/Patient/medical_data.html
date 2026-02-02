@@ -306,7 +306,7 @@
     /* ✅ THIS IS THE ONLY FIX */
     function openDetails(record){
         localStorage.setItem("selectedMedicalRecord", JSON.stringify(record));
-        window.location.href = `medical_record_view.html?patient_id=${patientId}`;
+        window.location.href = `record_details.html?patient_id=${patientId}`;
     }
 
     function openTestReport(record){
