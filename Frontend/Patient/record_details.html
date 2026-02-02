@@ -2,72 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Medical Record Details</title>
+    <title>Medical Record</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         :root{
             --primary:#0f766e;
-            --bg:#f0fdfa;
+            --bg:#ecfeff;
             --card:#ffffff;
-            --border:#e5e7eb;
+            --border:#d1fae5;
             --text:#1f2937;
         }
+        *{box-sizing:border-box}
+
         body{
             margin:0;
-            font-family:Arial;
+            font-family:system-ui, Arial;
             background:var(--bg);
+            color:var(--text);
         }
+
+        /* HEADER */
         header{
             background:var(--primary);
             color:#fff;
-            padding:22px;
+            padding:18px 20px;
         }
-        .section{
-            max-width:950px;
-            margin:26px auto;
-            background:#fff;
-            padding:26px;
+        header h2{
+            margin:0;
+            font-size:20px;
+        }
+        header p{
+            margin:4px 0 0;
+            font-size:13px;
+            opacity:.9;
+        }
+
+        /* LAYOUT */
+        .wrapper{
+            max-width:900px;
+            margin:20px auto;
+            padding:0 14px;
+        }
+        .card{
+            background:var(--card);
             border-radius:14px;
-            box-shadow:0 6px 16px rgba(0,0,0,.06);
+            padding:18px;
+            margin-bottom:16px;
+            box-shadow:0 6px 18px rgba(0,0,0,.06);
         }
+
+        /* SECTION TITLES */
+        .section-title{
+            font-size:15px;
+            font-weight:600;
+            margin-bottom:12px;
+            color:#065f46;
+            border-left:4px solid var(--primary);
+            padding-left:10px;
+        }
+
+        /* DATA GRID */
         .grid{
             display:grid;
             grid-template-columns:1fr 1fr;
-            gap:18px;
+            gap:14px;
+        }
+        .item{
+            background:#f0fdfa;
+            border:1px solid var(--border);
+            border-radius:10px;
+            padding:12px;
         }
         .label{
-            font-weight:bold;
-            margin-bottom:6px;
-            color:#374151;
+            font-size:12px;
+            font-weight:600;
+            color:#047857;
+            margin-bottom:4px;
         }
         .value{
-            background:#f9fafb;
-            padding:12px;
-            border-radius:8px;
-            border:1px solid var(--border);
-            min-height:42px;
+            font-size:14px;
         }
+
+        /* ACTIONS */
         .actions{
-            max-width:950px;
-            margin:0 auto 30px;
+            position:sticky;
+            bottom:0;
+            background:#ffffff;
+            border-top:1px solid var(--border);
+            padding:12px;
             display:flex;
-            justify-content:space-between;
+            gap:10px;
         }
         .actions button{
+            flex:1;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            font-size:15px;
+            cursor:pointer;
+        }
+        .back{
+            background:#e5e7eb;
+        }
+        .print{
             background:var(--primary);
             color:white;
-            border:none;
-            padding:10px 22px;
-            border-radius:8px;
-            cursor:pointer;
+        }
+
+        /* MOBILE */
+        @media(max-width:600px){
+            .grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+        /* PRINT */
+        @media print{
+            .actions{display:none}
+            body{background:white}
         }
     </style>
 
     <script>
         const token = localStorage.getItem("patientToken");
         const patientId = localStorage.getItem("patientId");
-
         if(!token || !patientId){
             location.replace("login.html");
         }
@@ -77,63 +136,66 @@
 <body>
 
 <header>
-    <h2>Medical Record Details</h2>
-    <p>Patient Clinical Report</p>
+    <h2>Medical Record</h2>
+    <p>Patient Clinical Summary</p>
 </header>
 
-<div class="section">
-    <div class="grid">
-        <div>
-            <div class="label">Hospital Name</div>
-            <div class="value" id="hospital"></div>
-        </div>
-        <div>
-            <div class="label">Department</div>
-            <div class="value" id="department"></div>
-        </div>
-        <div>
-            <div class="label">Visit Date</div>
-            <div class="value" id="date"></div>
-        </div>
-    </div>
-</div>
+<div class="wrapper">
 
-<div class="section">
-    <div class="grid">
-        <div>
-            <div class="label">Diagnosis</div>
-            <div class="value" id="diagnosis"></div>
-        </div>
-        <div>
-            <div class="label">Prescription</div>
-            <div class="value" id="prescription"></div>
-        </div>
-        <div>
-            <div class="label">Doctor Notes</div>
-            <div class="value" id="notes"></div>
-        </div>
-        <div>
-            <div class="label">Tests Advised</div>
-            <div class="value" id="tests"></div>
+    <div class="card">
+        <div class="section-title">Visit Information</div>
+        <div class="grid">
+            <div class="item">
+                <div class="label">Hospital</div>
+                <div class="value" id="hospital"></div>
+            </div>
+            <div class="item">
+                <div class="label">Department</div>
+                <div class="value" id="department"></div>
+            </div>
+            <div class="item">
+                <div class="label">Visit Date</div>
+                <div class="value" id="date"></div>
+            </div>
         </div>
     </div>
+
+    <div class="card">
+        <div class="section-title">Medical Details</div>
+        <div class="grid">
+            <div class="item">
+                <div class="label">Diagnosis</div>
+                <div class="value" id="diagnosis"></div>
+            </div>
+            <div class="item">
+                <div class="label">Prescription</div>
+                <div class="value" id="prescription"></div>
+            </div>
+            <div class="item">
+                <div class="label">Doctor Notes</div>
+                <div class="value" id="notes"></div>
+            </div>
+            <div class="item">
+                <div class="label">Tests Advised</div>
+                <div class="value" id="tests"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <div class="actions">
-    <button onclick="history.back()">⬅ Back</button>
-    <button onclick="window.print()">🖨 Print</button>
+    <button class="back" onclick="history.back()">⬅ Back</button>
+    <button class="print" onclick="window.print()">🖨 Print</button>
 </div>
 
 <script>
-    /* ✅ CORRECT KEY */
     const record = JSON.parse(localStorage.getItem("medicalRecord"));
-
     if(!record){
         alert("No medical record found");
         history.back();
     }
 
-    /* SAFE DATA BINDING */
     hospital.innerText = record.hospital_name || "N/A";
     department.innerText = record.department || "N/A";
     date.innerText = new Date(record.created_at).toLocaleString();
