@@ -5,135 +5,153 @@
     <title>My Profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script>
-        const token = localStorage.getItem("patientToken");
-        const params = new URLSearchParams(window.location.search);
-        let patientId = params.get("patient_id") || localStorage.getItem("patientId");
-
-        if (!token || !patientId) {
-            window.location.replace("login.html");
-        }
-
-        localStorage.setItem("patientId", patientId);
-
-        fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
-            headers: { "Authorization": "Bearer " + token }
-        })
-        .then(res => { if (!res.ok) forceLogout(); })
-        .catch(() => forceLogout());
-
-        window.history.pushState(null,null,location.href);
-        window.onpopstate = ()=>window.history.pushState(null,null,location.href);
-
-        function forceLogout(){
-            localStorage.clear();
-            window.location.replace("login.html");
-        }
-    </script>
-
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
+        body{
+            margin:0;
+            font-family:Arial;
+            background:#eef5f4;
         }
-
-        header {
-            background: #0b5ed7;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+        header{
+            background:#0f766e;
+            color:white;
+            padding:18px;
+            text-align:center;
+            font-size:20px;
+            font-weight:bold;
         }
-
-        .profile-container {
-            padding: 20px;
-            max-width: 700px;
-            margin: auto;
+        .container{
+            max-width:800px;
+            margin:20px auto;
+            padding:0 15px;
         }
-
-        .section {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        .section{
+            background:white;
+            padding:16px;
+            border-radius:10px;
+            margin-bottom:15px;
+            box-shadow:0 4px 10px rgba(0,0,0,.06);
         }
-
-        .section h3 {
-            margin-top: 0;
-            color: #0b5ed7;
+        .section h3{
+            margin-top:0;
+            color:#0f766e;
+            border-bottom:1px solid #e5e7eb;
+            padding-bottom:6px;
         }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+        .row{
+            display:flex;
+            justify-content:space-between;
+            margin:8px 0;
         }
-
-        .label {
-            font-weight: bold;
-            color: #555;
+        .label{
+            font-weight:bold;
+            color:#374151;
         }
-
-        footer {
-            text-align: center;
-            font-size: 12px;
-            color: gray;
-            margin-top: 20px;
+        .value{
+            color:#111827;
+        }
+        .center{
+            text-align:center;
+            padding:40px;
+            color:#555;
+        }
+        footer{
+            text-align:center;
+            font-size:12px;
+            color:#6b7280;
+            padding:15px;
         }
     </style>
 </head>
 
 <body>
 
-<header>
-    My Profile
-</header>
+<header>My Profile</header>
 
-<div class="profile-container" id="profile"></div>
+<div class="container" id="profile">
+    <div class="center">Loading profile...</div>
+</div>
 
 <footer>
-    Digital Health Record System – Government of Kerala
+    Digital Health Record System – Government Portal
 </footer>
 
 <script>
-    const data = JSON.parse(localStorage.getItem("patientProfileData"));
+    const token = localStorage.getItem("patientToken");
+    const params = new URLSearchParams(window.location.search);
+    const patientId = params.get("patient_id") || localStorage.getItem("patientId");
 
-    const profileDiv = document.getElementById("profile");
+    if(!token || !patientId){
+        location.replace("login.html");
+    }
 
-    profileDiv.innerHTML = `
-        <div class="section">
-            <h3>Personal Information</h3>
-            <div class="row"><span class="label">Full Name</span><span>${data.full_name}</span></div>
-            <div class="row"><span class="label">Age</span><span>${data.age}</span></div>
-            <div class="row"><span class="label">Gender</span><span>${data.gender}</span></div>
-            <div class="row"><span class="label">Blood Group</span><span>${data.blood_group}</span></div>
-        </div>
+    localStorage.setItem("patientId", patientId);
 
-        <div class="section">
-            <h3>Contact Information</h3>
-            <div class="row"><span class="label">Email</span><span>${data.email}</span></div>
-            <div class="row"><span class="label">Mobile</span><span>${data.mobile_number}</span></div>
-            <div class="row"><span class="label">Address</span><span>${data.current_address}</span></div>
-            <div class="row"><span class="label">Location</span><span>${data.current_location}</span></div>
-            <div class="row"><span class="label">Home State</span><span>${data.home_state}</span></div>
-        </div>
+    fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token",{
+        headers:{ Authorization:"Bearer " + token }
+    })
+    .then(r=>{
+        if(!r.ok) throw new Error();
+        loadProfile();
+    })
+    .catch(forceLogout);
 
-        <div class="section">
-            <h3>Work & Language</h3>
-            <div class="row"><span class="label">Work Type</span><span>${data.work_type}</span></div>
-            <div class="row"><span class="label">Employer</span><span>${data.employer}</span></div>
-            <div class="row"><span class="label">Language</span><span>${data.native_language}</span></div>
-        </div>
+    function loadProfile(){
+        fetch(`https://migrantwokerscentralisedplatform-1.onrender.com/patient/profile?patient_id=${patientId}`,{
+            headers:{ Authorization:"Bearer " + token }
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            if(!data){
+                document.getElementById("profile").innerHTML =
+                    `<div class="center">No profile data found</div>`;
+                return;
+            }
 
-        <div class="section">
-            <h3>Identity</h3>
-            <div class="row"><span class="label">ID Type</span><span>${data.id_type}</span></div>
-            <div class="row"><span class="label">ID Number</span><span>${data.id_number}</span></div>
-        </div>
-    `;
+            // optional cache
+            localStorage.setItem("patientProfileData", JSON.stringify(data));
+
+            document.getElementById("profile").innerHTML = `
+            <div class="section">
+                <h3>Personal Information</h3>
+                <div class="row"><span class="label">Full Name</span><span class="value">${data.full_name || "N/A"}</span></div>
+                <div class="row"><span class="label">Age</span><span class="value">${data.age || "N/A"}</span></div>
+                <div class="row"><span class="label">Gender</span><span class="value">${data.gender || "N/A"}</span></div>
+                <div class="row"><span class="label">Blood Group</span><span class="value">${data.blood_group || "N/A"}</span></div>
+            </div>
+
+            <div class="section">
+                <h3>Contact Information</h3>
+                <div class="row"><span class="label">Email</span><span class="value">${data.email || "N/A"}</span></div>
+                <div class="row"><span class="label">Mobile</span><span class="value">${data.mobile_number || "N/A"}</span></div>
+                <div class="row"><span class="label">Address</span><span class="value">${data.current_address || "N/A"}</span></div>
+                <div class="row"><span class="label">Location</span><span class="value">${data.current_location || "N/A"}</span></div>
+                <div class="row"><span class="label">Home State</span><span class="value">${data.home_state || "N/A"}</span></div>
+            </div>
+
+            <div class="section">
+                <h3>Work & Language</h3>
+                <div class="row"><span class="label">Work Type</span><span class="value">${data.work_type || "N/A"}</span></div>
+                <div class="row"><span class="label">Employer</span><span class="value">${data.employer || "N/A"}</span></div>
+                <div class="row"><span class="label">Language</span><span class="value">${data.native_language || "N/A"}</span></div>
+            </div>
+
+            <div class="section">
+                <h3>Identity</h3>
+                <div class="row"><span class="label">ID Type</span><span class="value">${data.id_type || "N/A"}</span></div>
+                <div class="row"><span class="label">ID Number</span><span class="value">${data.id_number || "N/A"}</span></div>
+            </div>
+            `;
+        })
+        .catch(()=>{
+            document.getElementById("profile").innerHTML =
+                `<div class="center">Unable to load profile</div>`;
+        });
+    }
+
+    function forceLogout(){
+        localStorage.clear();
+        location.replace("login.html");
+    }
 </script>
 
 </body>
