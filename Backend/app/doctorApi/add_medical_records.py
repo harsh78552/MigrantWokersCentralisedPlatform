@@ -24,9 +24,9 @@ class PatientSuggestions(MethodView):
     @jwt_required(locations=['headers'])
     def post(self):
         raw_data = request.form.to_dict()
-        print(raw_data)
         try:
             data = PatientSuggestionsSchema().load(raw_data)
+            print(data)
             print(data)
         except ValidationError as error:
             return {
