@@ -10,7 +10,7 @@
 
         if (!window.token) {
             alert("Doctor not logged in");
-            window.location.replace("login.html");
+            window.location.replace("doctor_login.html");
         }
 
         fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
@@ -21,7 +21,7 @@
 
         function logout(){
             localStorage.clear();
-            window.location.replace("login.html");
+            window.location.replace("doctor_login.html");
         }
 
         window.history.pushState(null,null,location.href);

@@ -26,8 +26,6 @@ class PatientSuggestions(MethodView):
         raw_data = request.form.to_dict()
         try:
             data = PatientSuggestionsSchema().load(raw_data)
-            print(data)
-            print(data)
         except ValidationError as error:
             return {
                 "message": "Validation failed", "errors": error.messages}, 422

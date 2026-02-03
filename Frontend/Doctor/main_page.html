@@ -10,7 +10,7 @@
         const token = localStorage.getItem("doctorToken");
 
         if (!token) {
-            window.location.replace("login.html");
+            window.location.replace("doctor_login.html");
         } else {
             fetch("https://migrantwokerscentralisedplatform-1.onrender.com/check/token", {
                 headers: { "Authorization": "Bearer " + token }
@@ -21,7 +21,7 @@
 
         function logoutDirect(){
             localStorage.removeItem("doctorToken");
-            window.location.replace("login.html");
+            window.location.replace("doctor_login.html");
         }
     </script>
 
@@ -186,7 +186,7 @@
             headers: { "Authorization": "Bearer " + token }
         }).finally(() => {
             localStorage.removeItem("doctorToken");
-            window.location.replace("login.html");
+            window.location.replace("doctor_login.html");
         });
     }
 </script>
