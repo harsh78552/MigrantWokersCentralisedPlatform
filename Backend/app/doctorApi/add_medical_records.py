@@ -37,15 +37,17 @@ class PatientSuggestions(MethodView):
         hospital_name = data['hospital_name']
         department = data['department']
         diagnosis = data['diagnosis']
-        prescription = data['prescription']
-        notes = data['notes']
-        tests = data['tests']
-        report_category = data['report_category']
-        report_types = data['report_type']
+
+        prescription = data.get('prescription')
+        notes = data.get('notes')
+        tests = data.get('tests')
+
+        report_category = data.get('report_category')
+        report_types = data.get('report_type')
+        report_name = data.get('report_name')
         final_report_type = None
         if report_category:
             if report_category == 'other' and report_types == 'other':
-                report_name = data['report_name']
                 final_report_type = report_name
             else:
                 final_report_type = report_category
