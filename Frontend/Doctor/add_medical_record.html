@@ -5,7 +5,6 @@
     <title>Add Medical Record</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- ================= AUTH & TOKEN CHECK ================= -->
     <script>
         window.token = localStorage.getItem("doctorToken");
 
@@ -32,99 +31,19 @@
     <style>
         :root{--primary:#0284c7;--border:#e2e8f0}
         *{box-sizing:border-box}
-        body{
-            margin:0;
-            font-family:Segoe UI,Arial;
-            background:linear-gradient(180deg,#e0f2fe,#f8fafc);
-        }
-        header{
-            background:#0284c7;
-            color:white;
-            padding:20px 30px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
-        header button{
-            border:none;
-            background:#0ea5e9;
-            color:white;
-            padding:10px 18px;
-            border-radius:20px;
-            cursor:pointer;
-        }
-        .container{
-            max-width:1100px;
-            margin:auto;
-            padding:30px;
-        }
-        .card{
-            background:white;
-            border-radius:20px;
-            padding:30px;
-            box-shadow:0 20px 40px rgba(0,0,0,.1);
-        }
-        .tabs{
-            display:flex;
-            gap:10px;
-            margin-bottom:25px;
-        }
-        .tab{
-            flex:1;
-            padding:12px;
-            text-align:center;
-            border-radius:20px;
-            background:#e0f2fe;
-            cursor:pointer;
-            font-weight:bold;
-        }
-        .tab.active{
-            background:var(--primary);
-            color:white;
-        }
+        body{margin:0;font-family:Segoe UI,Arial;background:linear-gradient(180deg,#e0f2fe,#f8fafc);}
+        header{background:#0284c7;color:white;padding:20px 30px;display:flex;justify-content:space-between;}
+        .container{max-width:1100px;margin:auto;padding:30px;}
+        .card{background:white;border-radius:20px;padding:30px;box-shadow:0 20px 40px rgba(0,0,0,.1);}
+        .tabs{display:flex;gap:10px;margin-bottom:25px;}
+        .tab{flex:1;padding:12px;text-align:center;border-radius:20px;background:#e0f2fe;font-weight:bold;cursor:pointer;}
+        .tab.active{background:var(--primary);color:white;}
         .tab-content{display:none;}
         .tab-content.active{display:block;}
-        .form-group{margin-bottom:16px;}
-        label{font-weight:bold;display:block;margin-bottom:6px;}
-        input,textarea,select{
-            width:100%;
-            padding:12px;
-            border-radius:12px;
-            border:1px solid var(--border);
-        }
+        input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);}
         textarea{min-height:90px;}
-        .row{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-            gap:15px;
-        }
-        .test-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-            gap:15px;
-        }
-        .test-card{
-            border:1px solid var(--border);
-            border-radius:14px;
-            padding:15px;
-            display:flex;
-            justify-content:space-between;
-        }
-        .actions{
-            margin-top:30px;
-            display:flex;
-            gap:15px;
-        }
-        .btn{
-            padding:14px 30px;
-            border-radius:30px;
-            border:none;
-            font-weight:bold;
-            color:white;
-            cursor:pointer;
-        }
-        .btn.save{background:var(--primary);}
-        .btn.reset{background:#64748b;}
+        .actions{margin-top:30px;}
+        .btn{padding:14px 30px;border-radius:30px;border:none;font-weight:bold;color:white;background:var(--primary);}
     </style>
 </head>
 
@@ -132,7 +51,6 @@
 
 <header>
     <h2>📝 Add Medical Record</h2>
-    <button onclick="location.href='main_page.html'">Back</button>
 </header>
 
 <div class="container">
@@ -146,40 +64,23 @@
 
         <form id="recordForm" enctype="multipart/form-data">
 
+            <!-- CLINICAL -->
             <div id="clinical" class="tab-content active">
-                <div class="row">
-                    <div class="form-group">
-                        <label>Patient ID</label>
-                        <input name="patient_id" id="patient_id" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Hospital Name</label>
-                        <input name="hospital_name" required>
-                    </div>
-                </div>
-
-                <label>Diagnosis</label>
-                <textarea name="diagnosis"></textarea>
-
-                <label>Prescription</label>
-                <textarea name="prescription"></textarea>
-
-                <label>Doctor Notes</label>
-                <textarea name="notes"></textarea>
+                <input name="patient_id" placeholder="Patient ID" required>
+                <input name="hospital_name" placeholder="Hospital Name" required>
+                <textarea name="diagnosis" placeholder="Diagnosis"></textarea>
+                <textarea name="prescription" placeholder="Prescription"></textarea>
+                <textarea name="notes" placeholder="Doctor Notes"></textarea>
             </div>
 
+            <!-- TESTS -->
             <div id="tests" class="tab-content">
-                <div class="test-grid">
-                    <div class="test-card">
-                        Blood Test <input type="checkbox" name="tests" value="Blood Test">
-                    </div>
-                    <div class="test-card">
-                        X-Ray <input type="checkbox" name="tests" value="X-Ray">
-                    </div>
-                </div>
+                <input type="checkbox" value="Blood Test" class="testOpt"> Blood Test<br>
+                <input type="checkbox" value="X-Ray" class="testOpt"> X-Ray<br>
                 <input id="customTest" placeholder="Other Test">
             </div>
 
+            <!-- REPORTS -->
             <div id="reports" class="tab-content">
                 <select id="reportCategory">
                     <option value="">No report</option>
@@ -197,15 +98,12 @@
                     <option value="CUSTOM">Other</option>
                 </select>
 
-                <div id="otherReportBox" style="display:none;">
-                    <input id="otherReport" placeholder="Report name">
-                </div>
-
+                <input id="otherReport" placeholder="Report Name">
                 <input type="file" id="reportFile">
             </div>
 
             <div class="actions">
-                <button class="btn save" type="submit">Save Record</button>
+                <button class="btn" type="submit">Save Record</button>
             </div>
 
         </form>
@@ -220,54 +118,60 @@
         document.getElementById(id).classList.add("active");
     }
 
-    reportType.addEventListener("change",()=>{
-        otherReportBox.style.display =
-            reportType.value==="CUSTOM" ? "block" : "none";
-    });
-
     recordForm.addEventListener("submit", async e => {
         e.preventDefault();
 
         if(!confirm("Submit this record?")) return;
 
-        const fd = new FormData(recordForm);
+        const fd = new FormData();
 
-        /* ===== ENSURE OPTIONAL FIELDS ALWAYS SENT ===== */
+        /* ===== FORCE ALL KEYS (IMPORTANT PART) ===== */
 
-        const tests=[];
-        document.querySelectorAll("input[name='tests']:checked")
-            .forEach(cb=>tests.push(cb.value));
+        fd.set("patient_id", recordForm.patient_id.value.trim());
+        fd.set("hospital_name", recordForm.hospital_name.value.trim());
+
+        fd.set("diagnosis", recordForm.diagnosis.value.trim() || "None");
+        fd.set("prescription", recordForm.prescription.value.trim() || "None");
+        fd.set("notes", recordForm.notes.value.trim() || "None");
+
+        /* TESTS */
+        const tests = [];
+        document.querySelectorAll(".testOpt:checked")
+            .forEach(cb => tests.push(cb.value));
         if(customTest.value.trim()) tests.push(customTest.value.trim());
-        fd.append("tests", tests.length ? tests.join(", ") : "None");
+        fd.set("tests", tests.length ? tests.join(", ") : "None");
 
-        fd.append("report_category", reportCategory.value || "None");
-        fd.append("report_type", reportType.value || "None");
-        fd.append("report_name", otherReport.value || "None");
+        /* REPORTS */
+        fd.set("report_category", reportCategory.value || "None");
+        fd.set("report_type", reportType.value || "None");
+        fd.set("report_name", otherReport.value.trim() || "None");
 
+        /* FILE */
         if (reportFile.files.length) {
-            fd.append("report_file", reportFile.files[0]);
+            fd.set("report_file", reportFile.files[0]);
         }
+
+        console.log("FINAL DATA:");
+        for (const [k,v] of fd.entries()) console.log(k, v);
 
         try {
             const res = await fetch(
                 "https://migrantwokerscentralisedplatform-1.onrender.com/doctor/add/patient/diagnosis/prescription/medical_notes",
                 {
-                    method:"POST",
-                    headers:{
-                        Authorization: "Bearer " + window.token
-                    },
+                    method: "POST",
+                    headers: { Authorization: "Bearer " + window.token },
                     body: fd
                 }
             );
 
             const data = await res.json();
-            alert(data.message || "Record Saved");
+            alert(data.message || "Saved");
             recordForm.reset();
             openTab("clinical", document.querySelector(".tab"));
         }
         catch(err){
-            alert("Request failed. Check backend logs.");
             console.error(err);
+            alert("Request failed");
         }
     });
 </script>
